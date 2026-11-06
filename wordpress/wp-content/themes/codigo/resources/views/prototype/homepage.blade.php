@@ -1,9 +1,10 @@
 {{--
   Homepage prototype (client preview) — served at /homepage-prototype by app/prototype.php.
   Standalone on purpose: own header/footer/CSS, no wp_head(). Each <section> maps to a future ACF layout.
+  Images live in wp-content/uploads/prototype/.
 --}}
 @php
-  $img = fn ($file) => \Illuminate\Support\Facades\Vite::asset("resources/images/prototype/{$file}");
+  $img = fn ($file) => wp_upload_dir()['baseurl']."/prototype/{$file}";
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -40,6 +41,7 @@
     --gutter: clamp(16px, 1vw, 20px);
     --col: 25vw;           /* 4-column grid */
     --indent: 9.4vw;       /* headline left edge */
+    --title-top: calc(var(--gutter)*.6);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -85,15 +87,52 @@
   .nav-search{position:absolute;right:var(--gutter);top:calc(var(--gutter) + 40px);width:30px;height:30px;color:inherit;background:none;border:0;cursor:pointer}
 
   /* ---- Hero ---- */
-  .hero{position:relative;height:100vh;min-height:620px;overflow:hidden;background:#dfe4ee}
-  .hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1.4s ease}
-  .hero .hero-photo{opacity:1}
-  .hero.is-xray .hero-photo{opacity:0}
+  .hero{position:relative;height:100vh;min-height:620px;background:#dfe4ee}
   .hero h1{position:absolute;left:calc(var(--col)*2);top:var(--gutter);right:var(--gutter);color:var(--sc-blue);max-width:9.5em}
-  .hero .hero-photo ~ h1{transition:color 1.4s}
-  .hero:not(.is-xray) h1{color:var(--sc-white)}
   .hero .project-link{position:absolute;left:calc(var(--col)*3);bottom:calc(var(--gutter)*1.5);color:var(--sc-blue)}
-  .hero:not(.is-xray) .project-link{color:var(--sc-white)}
+
+  /* ==== Reveal — reusable "window grows to cover" component ====================
+     Markup:  .reveal > .reveal__base (before) + .reveal__frame (optional S+C) + .reveal__layer (after)
+     Config:  data-reveal-rect="x y w h"   window, as fractions of the base image (0–1)
+              data-reveal-trigger           load | inview | manual   (default load)
+              data-reveal-window / -mark / -open   ms after start (default 1100 / 3200 / 5800)
+              data-reveal-duration          grow time in ms (default 1100)
+              data-reveal-easing            CSS easing for the grow
+              data-reveal-pop               ms for the window to grow from a point to its square (default 350)
+              data-reveal-mark-in           ms for the S + C to slide out from inside the window (default 900)
+              data-reveal-ghost="#sel"      fixed UI outside the block (e.g. the site header) that should be
+                                            "printed" on the revealed image: a copy is placed in the layer for the
+                                            duration, and the real element is shown instantly when it ends
+              [data-reveal-lift="4"]        on any element inside the layer: it rises this many % of the reveal's
+                                            height into place while the window grows
+     JS:      Reveal.init(el) → { play(), skip(), finished }; fires reveal:open and reveal:done on el
+     The grow uses the Web Animations API on clip-path + transforms only (no layout per frame),
+     so it stays smooth on large / retina screens. */
+  .reveal{position:relative;overflow:hidden}
+  .reveal__base,.reveal__layer{position:absolute;inset:0}
+  .reveal__base{z-index:0;display:none}
+  .reveal__frame{z-index:1;display:none;position:absolute;pointer-events:none}  /* behind the revealed layer */
+  .reveal__layer{z-index:2}
+  .reveal__base img,.reveal__layer > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  /* JS states (without JS, or with reduced motion, you just get the final layer) */
+  .reveal[data-state]:not([data-state="done"]) .reveal__base,
+  .reveal[data-state]:not([data-state="done"]) .reveal__frame{display:block}
+  .reveal[data-state]:not([data-state="done"]) .reveal__layer{will-change:clip-path}
+  .reveal[data-state="idle"] .reveal__layer{clip-path:inset(50% 50% 50% 50%)}
+  .reveal__mark{position:absolute;color:var(--sc-white);font-weight:500;line-height:.75;
+    font-size:calc(var(--rv-m) * 1.25);opacity:0;transition:opacity .3s ease;will-change:transform}
+  .reveal[data-state="mark"] .reveal__mark,.reveal[data-state="open"] .reveal__mark{opacity:1}
+  .reveal.is-closing .reveal__mark{opacity:0;transition-duration:.4s}
+  .reveal__mark--s{left:calc(var(--rv-m) * -.38);top:calc(var(--rv-m) * -.55)}
+  .reveal__mark--plus{left:calc(var(--rv-m) * -.38);bottom:calc(var(--rv-m) * -.47)}
+  .reveal__mark--c{right:calc(var(--rv-m) * -.43);bottom:calc(var(--rv-m) * -.57)}
+
+  /* Page intro: hide the header and lock scrolling while the hero reveal plays */
+  .site-header{transition:color .3s}
+  html.is-intro{overflow:hidden}
+  html.is-intro .site-header{visibility:hidden}
+  .reveal__ghost{position:absolute!important;pointer-events:none;visibility:visible!important}
+  html.is-intro .proto-badge{opacity:0}
 
   /* ---- Intro ---- */
   .intro{background:var(--sc-blue);color:var(--sc-white);min-height:75vh;padding:calc(var(--gutter)*2) var(--gutter) 10vh calc(var(--col)*2)}
@@ -103,15 +142,25 @@
 
   /* ---- Project panels (sticky stack) ---- */
   .projects{position:relative}
-  .panel{position:sticky;top:0;height:100vh;min-height:620px;overflow:hidden;color:var(--sc-white)}
-  .panel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  .panel::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.28),rgba(0,0,0,0) 45%)}
-  .panel h2{position:relative;z-index:1;padding:calc(var(--gutter)*.6) var(--gutter) 0 var(--indent);max-width:calc(var(--col)*2 + var(--col)*.5)}
-  .panel .project-link{position:absolute;z-index:1;left:calc(var(--col)*3);top:calc(var(--gutter)*1.8)}
+  /* overflow:clip (not hidden) so the sticky .panel-head still works; isolate so each
+     later panel paints over the previous panel's pinned phrase */
+  .panel{position:relative;height:100vh;min-height:620px;overflow:clip;isolation:isolate;color:var(--sc-white)}
+  /* negative margin = never pushed up by the panel's bottom edge: the phrase stays pinned
+     and is covered by the next panel (or clipped by this one) instead */
+  .panel-head{position:sticky;top:0;z-index:1;margin-bottom:-100vh}
+  /* Shared first line: sticks to the top while the panels scroll under it */
+  /* Track runs past the end of the projects so the prefix stays pinned until News covers it */
+  .projects-track{position:absolute;top:0;left:0;right:0;bottom:-100vh;z-index:3;pointer-events:none}
+  .projects-prefix{position:sticky;top:0;color:var(--sc-white);white-space:nowrap}
+  .projects-prefix span{display:block;padding:var(--title-top) var(--gutter) 0 var(--indent)}
+  .panel > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .panel::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(0,0,0,.28),rgba(0,0,0,0) 45%)}
+  .panel h2{padding:calc(var(--title-top) + .99em) var(--gutter) 0 var(--indent);max-width:calc(var(--col)*3 - var(--gutter)*2)}
+  .panel .project-link{position:absolute;left:calc(var(--col)*3);top:calc(var(--title-top) + .99 * var(--fs-display) + var(--gutter)*.6)}
   .panel .project-link .caption{display:block}
 
   /* ---- News ---- */
-  .news{position:relative;z-index:2;background:var(--sc-slate);color:var(--sc-white);padding:12vh 0 14vh var(--indent)}
+  .news{position:relative;z-index:4;background:var(--sc-slate);color:var(--sc-white);padding:12vh 0 14vh var(--indent)}
   .news-head{display:flex;align-items:baseline;padding-right:var(--gutter);margin-bottom:3.2vw}
   .news-head h2{font-size:var(--fs-h3);font-weight:400;flex:1}
   .news-head .more{position:absolute;left:calc(var(--col)*3)}
@@ -129,13 +178,13 @@
   .news-nav button{width:34px;height:34px;border:1px solid currentColor;border-radius:50%;background:none;color:inherit;cursor:pointer;font:inherit}
 
   /* ---- Ending CTA ---- */
-  .cta{position:relative;z-index:2;background:var(--sc-off-white);min-height:75vh;display:flex;align-items:center;padding:12vh var(--gutter) 12vh calc(var(--col)*2)}
+  .cta{position:relative;z-index:4;background:var(--sc-off-white);min-height:75vh;display:flex;align-items:center;padding:12vh var(--gutter) 12vh calc(var(--col)*2)}
   .cta p{font-size:var(--fs-cta);line-height:1.15;letter-spacing:-.01em}
   .cta a{display:inline-block;margin-top:1.1em;border-bottom:2px solid transparent;transition:border-color .2s}
   .cta a:hover{border-color:currentColor}
 
   /* ---- Footer ---- */
-  .site-footer{position:relative;z-index:2;background:var(--sc-blue);color:var(--sc-white);display:grid;grid-template-columns:repeat(4,1fr);
+  .site-footer{position:relative;z-index:4;background:var(--sc-blue);color:var(--sc-white);display:grid;grid-template-columns:repeat(4,1fr);
     padding:var(--gutter);min-height:42vh;font-size:var(--fs-body);line-height:1.22}
   .site-footer .logo-word{font-size:clamp(32px,2.9vw,56px)}
   .site-footer ul{list-style:none;display:grid;gap:.85em;align-content:start}
@@ -151,10 +200,12 @@
   @media (max-width: 820px){
     :root{--col:50vw;--indent:var(--gutter)}
     .hero h1{left:var(--gutter);top:auto;bottom:22vh}
-    .hero .project-link,.panel .project-link{left:var(--gutter);top:auto;bottom:calc(var(--gutter)*2)}
+    .hero .project-link{left:var(--gutter);top:auto;bottom:calc(var(--gutter)*2)}
+    .panel .project-link{position:static;display:block;padding:12px var(--gutter) 0 var(--indent)}
     .intro,.cta{padding-left:var(--gutter)}
     .intro{padding-top:96px}
-    .panel h2{padding-top:90px;max-width:none}
+    :root{--title-top:80px;--fs-display:min(11vw, 48px)}
+    .panel h2{max-width:none}
     .card{flex-basis:78vw}
     .news-head .more{position:static}
     .nav-bar{height:auto;padding:90px var(--gutter) 30px}
@@ -165,7 +216,6 @@
   }
   @media (prefers-reduced-motion: reduce){
     *{transition:none!important;scroll-behavior:auto!important}
-    .panel{position:relative}
   }
 @endverbatim
 </style>
@@ -197,14 +247,24 @@
 <main id="top">
 
   <!-- ===== Layout: hero (ACF: hero_photo, hero_xray, headline, project) ===== -->
-  <section class="hero" id="hero" data-theme="blue">
-    <img class="hero-xray" src="{{ $img('hero-xray.jpg') }}" alt="">
-    <img class="hero-photo" src="{{ $img('alfriston.jpg') }}" alt="Alfriston School Swimming Pool">
-    <h1 class="display">Bringing life to buildings and buildings to life</h1>
-    <a class="project-link" href="#">
-      <span class="caption">Alfriston Swimming Pool</span><br>
-      <span class="more">Find out more</span>
-    </a>
+  <section class="hero reveal" id="hero" data-theme="blue"
+           data-reveal data-reveal-trigger="load" data-reveal-pop="1100" data-reveal-ghost="#siteHeader" data-reveal-rect="0.47 0.458 0.085 0.126">
+    <div class="reveal__base">
+      <img src="{{ $img('alfriston.jpg') }}" alt="">
+    </div>
+    <div class="reveal__frame" aria-hidden="true">
+      <span class="reveal__mark reveal__mark--s">S</span>
+      <span class="reveal__mark reveal__mark--plus">+</span>
+      <span class="reveal__mark reveal__mark--c">C</span>
+    </div>
+    <div class="reveal__layer">
+      <img src="{{ $img('hero-xray.jpg') }}" alt="Alfriston School Swimming Pool, building services x-ray">
+      <h1 class="display" data-reveal-lift="4">Bringing life to buildings and buildings to life</h1>
+      <a class="project-link" href="#">
+        <span class="caption">Alfriston Swimming Pool</span><br>
+        <span class="more">Find out more</span>
+      </a>
+    </div>
   </section>
 
   <!-- ===== Layout: intro_text ===== -->
@@ -216,35 +276,50 @@
 
   <!-- ===== Layout: project_panels (repeater: image, statement, project title, link) ===== -->
   <div class="projects">
+    <div class="projects-track" aria-hidden="true">
+      <div class="projects-prefix display"><span>Skelly + Couch are</span></div>
+    </div>
     <section class="panel" data-theme="light">
       <img src="{{ $img('appleby.jpg') }}" alt="Appleby Blue Almshouse" loading="lazy">
-      <h2 class="display">Skelly + Couch are harmonising people with nature</h2>
-      <a class="project-link" href="#"><span class="caption">Appleby Blue Almshouse</span><span class="more">Find out more</span></a>
+      <div class="panel-head">
+        <h2 class="display"><span class="sr-only">Skelly + Couch are </span>harmonising people with nature</h2>
+        <a class="project-link" href="#"><span class="caption">Appleby Blue Almshouse</span><span class="more">Find out more</span></a>
+      </div>
     </section>
     <section class="panel" data-theme="light">
       <img src="{{ $img('rhodes.jpg') }}" alt="Rhodes House" loading="lazy">
-      <h2 class="display">Skelly + Couch are thinking against the grain</h2>
-      <a class="project-link" href="#"><span class="caption">Rhodes House</span><span class="more">Find out more</span></a>
+      <div class="panel-head">
+        <h2 class="display"><span class="sr-only">Skelly + Couch are </span>thinking against the grain</h2>
+        <a class="project-link" href="#"><span class="caption">Rhodes House</span><span class="more">Find out more</span></a>
+      </div>
     </section>
     <section class="panel" data-theme="light">
       <img src="{{ $img('farmiloe.jpg') }}" alt="Farmiloe Building" loading="lazy">
-      <h2 class="display">Skelly + Couch are united in curiosity</h2>
-      <a class="project-link" href="#"><span class="caption">Farmiloe Building</span><span class="more">Find out more</span></a>
+      <div class="panel-head">
+        <h2 class="display"><span class="sr-only">Skelly + Couch are </span>united in curiosity</h2>
+        <a class="project-link" href="#"><span class="caption">Farmiloe Building</span><span class="more">Find out more</span></a>
+      </div>
     </section>
     <section class="panel" data-theme="light">
       <img src="{{ $img('vitsoe.jpg') }}" alt="Vitsœ" loading="lazy">
-      <h2 class="display">Skelly + Couch are applying collective intelligence</h2>
-      <a class="project-link" href="#"><span class="caption">Vitsœ</span><span class="more">Find out more</span></a>
+      <div class="panel-head">
+        <h2 class="display"><span class="sr-only">Skelly + Couch are </span>applying collective intelligence</h2>
+        <a class="project-link" href="#"><span class="caption">Vitsœ</span><span class="more">Find out more</span></a>
+      </div>
     </section>
     <section class="panel" data-theme="light">
       <img src="{{ $img('notting-hill.jpg') }}" alt="Notting Hill and Ealing School" loading="lazy">
-      <h2 class="display">Skelly + Couch are collaborating with clarity</h2>
-      <a class="project-link" href="#"><span class="caption">Notting Hill and Ealing School</span><span class="more">Find out more</span></a>
+      <div class="panel-head">
+        <h2 class="display"><span class="sr-only">Skelly + Couch are </span>collaborating with clarity</h2>
+        <a class="project-link" href="#"><span class="caption">Notting Hill and Ealing School</span><span class="more">Find out more</span></a>
+      </div>
     </section>
     <section class="panel" data-theme="light">
       <img src="{{ $img('people.jpg') }}" alt="Skelly + Couch engineers reviewing a material board" loading="lazy">
-      <h2 class="display">Skelly + Couch are a hotbed for growth</h2>
-      <a class="project-link" href="#"><span class="caption">People</span><span class="more">Find out more</span></a>
+      <div class="panel-head">
+        <h2 class="display"><span class="sr-only">Skelly + Couch are </span>a hotbed for growth</h2>
+        <a class="project-link" href="#"><span class="caption">People</span><span class="more">Find out more</span></a>
+      </div>
     </section>
   </div>
 
@@ -314,8 +389,156 @@
   const header = document.getElementById('siteHeader');
   const hero = document.getElementById('hero');
 
-  // Hero: photo → building x-ray after a delay (Figma "Delay → Change to")
-  setTimeout(() => hero.classList.add('is-xray'), 1800);
+  /* ==== Reveal component (becomes resources/js/reveal.js / an Alpine component later) ==== */
+  const Reveal = {
+    init(el) {
+      const d = el.dataset;
+      const opt = {
+        rect: (d.revealRect || '0.45 0.45 0.1 0.1').split(/\s+/).map(Number),
+        trigger: d.revealTrigger || 'load',
+        tWindow: +(d.revealWindow ?? 1100),
+        tMark: +(d.revealMark ?? 3200),
+        tOpen: +(d.revealOpen ?? 5800),
+        duration: +(d.revealDuration ?? 1100),
+        easing: d.revealEasing || 'cubic-bezier(.76, 0, .24, 1)',
+        pop: +(d.revealPop ?? 350),
+        markIn: +(d.revealMarkIn ?? 900),
+      };
+      const lifts = [...el.querySelectorAll('[data-reveal-lift]')];
+      // Copies of outside UI, positioned exactly where the originals are, revealed with the image
+      const ghosts = (d.revealGhost ? [...document.querySelectorAll(d.revealGhost)] : []).map(src => {
+        const r = src.getBoundingClientRect(), c = src.cloneNode(true);
+        c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+        c.setAttribute('aria-hidden', 'true'); c.inert = true;
+        c.classList.add('reveal__ghost');
+        Object.assign(c.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
+        el.querySelector('.reveal__layer').appendChild(c);
+        return c;
+      });
+      const base = el.querySelector('.reveal__base img');
+      const layer = el.querySelector('.reveal__layer');
+      const frame = el.querySelector('.reveal__frame');
+      const marks = {
+        s: el.querySelector('.reveal__mark--s'),
+        plus: el.querySelector('.reveal__mark--plus'),
+        c: el.querySelector('.reveal__mark--c'),
+      };
+      const timers = [], anims = [];
+      let g, finished, done = false;
+      const finishedP = new Promise(r => finished = r);
+      const set = state => { el.dataset.state = state; };
+
+      // Window rect is given in image coordinates; convert to px in the element (object-fit: cover)
+      function place() {
+        const W = el.clientWidth, H = el.clientHeight;
+        const iw = base?.naturalWidth || W, ih = base?.naturalHeight || H;
+        const k = Math.max(W / iw, H / ih), dw = iw * k, dh = ih * k;
+        const ox = (W - dw) / 2, oy = (H - dh) / 2;
+        const [x, y, w, h] = opt.rect;
+        g = { W, H, L: ox + x * dw, T: oy + y * dh, R: ox + (x + w) * dw, B: oy + (y + h) * dh };
+        g.inset = `inset(${g.T}px ${W - g.R}px ${H - g.B}px ${g.L}px)`;
+        const cx = (g.L + g.R) / 2, cy = (g.T + g.B) / 2;
+        g.point = `inset(${cy}px ${W - cx}px ${H - cy}px ${cx}px)`;
+        if (el.dataset.state !== 'idle') layer.style.clipPath = g.inset;
+        if (frame) Object.assign(frame.style, { left: g.L + 'px', top: g.T + 'px', width: (g.R - g.L) + 'px', height: (g.B - g.T) + 'px' });
+        el.style.setProperty('--rv-m', Math.min(g.R - g.L, g.B - g.T) + 'px'); // letters scale with the window
+      }
+      const onResize = () => { if (['idle','window','mark'].includes(el.dataset.state)) place(); };
+
+      function finish() {
+        if (done) return; done = true;
+        timers.forEach(clearTimeout);
+        anims.forEach(a => a.cancel());
+        removeEventListener('resize', onResize);
+        set('done');
+        layer.style.clipPath = '';
+        if (frame) frame.removeAttribute('style');
+        el.style.removeProperty('--rv-m');
+        el.classList.remove('is-closing');
+        ghosts.forEach(c => c.remove());
+        el.dispatchEvent(new CustomEvent('reveal:done'));
+        finished();
+      }
+      function open() {
+        if (done || el.dataset.state === 'open') return;
+        set('open');
+        anims.forEach(a => a.cancel()); anims.length = 0;
+        const { W, H, L, T, R, B } = g;
+        const o = { duration: opt.duration, easing: opt.easing, fill: 'forwards' };
+        // Clip and letters share duration + easing, so the letters stay locked to the corners
+        anims.push(layer.animate([{ clipPath: g.inset }, { clipPath: 'inset(0px 0px 0px 0px)' }], o));
+        const move = (m, dx, dy) => m && anims.push(m.animate([{ transform: 'none' }, { transform: `translate(${dx}px, ${dy}px)` }], o));
+        move(marks.s, -L, -T);
+        move(marks.plus, -L, H - B);
+        move(marks.c, W - R, H - B);
+        lifts.forEach(n => anims.push(n.animate(
+          [{ transform: `translateY(${H * (+n.dataset.revealLift || 4) / 100}px)` }, { transform: 'none' }], o)));
+        el.dispatchEvent(new CustomEvent('reveal:open'));
+        timers.push(setTimeout(() => el.classList.add('is-closing'), opt.duration * .8));
+        anims[0].finished.then(() => timers.push(setTimeout(finish, 400))).catch(() => {});
+      }
+      async function play() {
+        if (done || el.dataset.state !== 'idle') return finishedP;
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) { finish(); return finishedP; }
+        // Wait for both images so the window never shows a half-loaded picture
+        await Promise.all([...el.querySelectorAll('img')].map(i => i.decode().catch(() => {})));
+        place();
+        addEventListener('resize', onResize);
+        timers.push(setTimeout(() => {
+          set('window');
+          layer.style.clipPath = g.inset;
+          // grows from a point in the middle of the window to the full square
+          anims.push(layer.animate([{ clipPath: g.point }, { clipPath: g.inset }],
+            { duration: opt.pop, easing: 'cubic-bezier(.22, 1, .36, 1)' }));
+        }, opt.tWindow));
+        if (frame) timers.push(setTimeout(() => {
+          set('mark');
+          // Letters start at the middle of the window (hidden behind the x-ray layer)
+          // and slide out to their corners
+          const hw = (g.R - g.L) / 2, hh = (g.B - g.T) / 2;
+          const from = { s: [hw, hh], plus: [hw, -hh], c: [-hw, -hh] };
+          Object.entries(marks).forEach(([k, m]) => m && anims.push(m.animate(
+            [{ transform: `translate(${from[k][0]}px, ${from[k][1]}px)`, opacity: 0 },
+             { opacity: 1, offset: .3 },
+             { transform: 'none', opacity: 1 }],
+            { duration: opt.markIn, easing: 'cubic-bezier(.22, 1, .36, 1)' })));
+        }, opt.tMark));
+        timers.push(setTimeout(open, opt.tOpen));
+        return finishedP;
+      }
+      function skip() {
+        if (done) return;
+        if (el.dataset.state === 'open') return finish();
+        timers.forEach(clearTimeout); timers.length = 0;
+        if (!g) place();
+        layer.style.clipPath = g.inset;
+        open();
+      }
+
+      set('idle');
+      if (opt.trigger === 'load') play();
+      if (opt.trigger === 'inview') {
+        const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { io.disconnect(); play(); } }, { threshold: .6 });
+        io.observe(el);
+      }
+      return { el, play, skip, finished: finishedP };
+    },
+  };
+
+  // Home intro: hero reveal plays once on page load; header appears when it's done.
+  // Any scroll / key / tap jumps straight to the "grow" step.
+  document.documentElement.classList.add('is-intro');
+  const heroReveal = Reveal.init(hero);
+  const skipIntro = () => heroReveal.skip();
+  const skipEvents = ['wheel', 'touchstart', 'keydown', 'pointerdown'];
+  skipEvents.forEach(ev => addEventListener(ev, skipIntro, { passive: true, once: true }));
+  heroReveal.finished.then(() => {
+    skipEvents.forEach(ev => removeEventListener(ev, skipIntro));
+    document.documentElement.classList.remove('is-intro');
+    updateHeader();
+  });
+  // Other reveals on the page (e.g. inner-page images): <div class="reveal" data-reveal data-reveal-trigger="inview">
+  document.querySelectorAll('[data-reveal]').forEach(el => { if (el !== hero) Reveal.init(el); });
 
   // Menu toggle
   const menuBtn = document.getElementById('menuBtn');
@@ -337,12 +560,10 @@
       const r = el.getBoundingClientRect();
       if (r.top <= probe && r.bottom > probe) theme = el.dataset.theme;
     }
-    if (theme === 'blue' && !hero.classList.contains('is-xray')) theme = 'light';
     header.classList.toggle('is-blue', theme === 'blue');
     header.style.color = theme === 'dark' ? 'var(--sc-black)' : '';
   }
   addEventListener('scroll', updateHeader, {passive:true});
-  hero.addEventListener('transitionend', updateHeader);
   updateHeader();
 
   // News carousel arrows
