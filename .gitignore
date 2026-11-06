@@ -140,10 +140,9 @@ wordpress/wp-content/themes/*
 # Markdown files
 !README.md
 !CHANGELOG.md
-!DOCKER.md
-!SERVER.md
-!SASS.md
-!VUE.md
+
+# Docs
+!docs/
 
 # track example files, if they exist
 !*.example
@@ -163,8 +162,10 @@ wordpress/wp-content/themes/*
 !site.webmanifest
 
 # Docker
-#!docker-compose.yml
-#!Caddyfile
+!docker-compose.yml
+!docker-compose.remote.yml
+!Caddyfile
+!docker
 
 
 # Wordpress: track these mu-plugins, plugins, and themes
@@ -188,7 +189,7 @@ wordpress/wp-content/themes/codigo/npm-debug.log
 wordpress/wp-content/themes/codigo/yarn-error.log
 wordpress/wp-content/themes/codigo/yarn.lock
 #wordpress/wp-content/themes/codigo/package-lock.json
-wordpress/wp-content/themes/codigo/composer.lock
+#wordpress/wp-content/themes/codigo/composer.lock
 wordpress/wp-content/themes/codigo/assets/css/style.css
 wordpress/wp-content/themes/codigo/assets/css/*.map
 #wordpress/wp-content/themes/codigo/theme.json
@@ -197,7 +198,7 @@ wordpress/wp-content/themes/codigo/assets/css/*.map
 # Track public
 !wordpress/wp-content/themes/codigo/public/
 # Ignore everything inside public
-wordpress/wp-content/themes/codigo/public/*
+#wordpress/wp-content/themes/codigo/public/*
 # But track the Vite build output
-!wordpress/wp-content/themes/codigo/public/build/
-!wordpress/wp-content/themes/codigo/public/build/**
+#!wordpress/wp-content/themes/codigo/public/build/
+#!wordpress/wp-content/themes/codigo/public/build/**
