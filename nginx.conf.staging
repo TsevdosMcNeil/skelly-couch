@@ -1,13 +1,29 @@
-# default
-# /etc/nginx/sites-available/default.conf
+# skelly-couch
+# /etc/nginx/sites-available/skelly-couch.conf
+#
+# Template: new-wp-sage.sh replaces these placeholders for each project:
+#   skelly-couch    project slug (folder on the server: /srv/docker/skelly-couch)
+#   beta.skelly-couch.tm-studio.co.uk     staging domain (CADDY_PRODUCTION_DOMAIN)
+#   8465   port the WordPress container listens on (127.0.0.1)
+#   8565   port the phpMyAdmin container listens on (127.0.0.1)
+#
+# test configuration via `sudo nginx -t`
+# load changes via `sudo systemctl reload nginx`
+
 server {
   listen 80;
   listen [::]:80;
-  server_name default.codigo.co.uk;
+  server_name beta.skelly-couch.tm-studio.co.uk;
   client_max_body_size 256m;
 
- location / {
-    proxy_pass http://127.0.0.1:8458;
+  # Block the WordPress logs folder (debug.log / error.log live in the web root,
+  # mapped from ./logs). 404 instead of 403 so it doesn't reveal that it exists.
+  location ^~ /logs/ {
+    return 404;
+  }
+
+  location / {
+    proxy_pass http://127.0.0.1:8465;
     proxy_set_header Host              $host;
     proxy_set_header X-Real-IP         $remote_addr;
     proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
@@ -25,10 +41,10 @@ server {
   location ^~ /pma/ {
     # (optional but recommended) Basic auth
     auth_basic "Restricted";
-    auth_basic_user_file /srv/docker/default/.htpasswd-pma;
+    auth_basic_user_file /srv/docker/skelly-couch/.htpasswd-pma;
 
     # Strip /pma prefix when proxying
-    proxy_pass http://127.0.0.1:8108/;
+    proxy_pass http://127.0.0.1:8565/;
     proxy_http_version 1.1;
 
     proxy_set_header Host              $host;
