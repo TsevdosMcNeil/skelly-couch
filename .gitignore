@@ -166,10 +166,13 @@ wordpress/wp-content/themes/*
 !docker-compose.remote.yml
 !Caddyfile
 !docker
+!uploads.ini
 
 
 # Wordpress: track these mu-plugins, plugins, and themes
-
+!wp-config.php
+# Ignore Docker wp-config.php
+wordpress/wp-config.php
 
 # WPML Plugin: These files were updated to prevent fatal errors caused by incompatibilities between the WPML plugin and SAGE
 #!wp-content/plugins/wpml-string-translation/
