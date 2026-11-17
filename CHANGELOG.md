@@ -8,6 +8,32 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
+## [0.0.3] - 2026-11-17
+
+Homepage prototype: first round of design feedback (George).
+
+### Changed
+- **Proportional scaling from the 1920px artboard.** All sizes use a `--u` unit (1px at 1920 wide), so the page matches
+  the Figma exactly at 1920 x 1080 and scales by the same ratio on other desktop screens. Phones keep their own sizes.
+- **Type and spacing from the Figma "Desktop Styles":** Big Titles 119/119 −3%, Headings 56/58 −2%,
+  Large Body 34/38 −2% (fixes the tracking of the blue intro text), Body 18/22, spacing scale 15/30/60/80/120/200.
+  The ending CTA uses Headings; the intro, News label and article titles use Large Body.
+- **Large titles transition** (per George's video): each project phrase fades in as its image comes up and fades out
+  as the next one arrives, while "Skelly + Couch are" stays in place.
+- **News:** arrows removed. Scrolls sideways like krft.nl "Featured": trackpad / touch swipe or mouse drag,
+  snapping to each article. The three Figma articles are repeated to show the scroll (prototype only).
+- **Article tags:** left-aligned with a 20px gap; always visible on touch screens.
+
+### Added
+- **"Find out more" hover** (Figma R1 Basic Button): the words lift and a thin line appears under them.
+- **"Contact us to get started." hover** (Figma R1 Ending CTA): a plus slides in and the line turns blue (`#1e4db2`).
+- **Menu and footer lists:** hovering a link fades the others to 40%, like hkrarchitects.com, instead of an underline.
+
+### Pending (waiting on George)
+- SVG wordmark and S+C mark, plus the logo interaction.
+- Hamburger bars sized from the plus in the logo, and their collapse-into-the-top-bar interaction.
+- Chromatic Pro web fonts, once the client has bought the licence.
+
 ## [0.0.2] - 2026-11-06
 
 ### Added

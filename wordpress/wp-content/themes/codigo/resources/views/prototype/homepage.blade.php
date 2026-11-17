@@ -30,18 +30,27 @@
 
     --font: "Chromatic Pro","Inter Tight",system-ui,sans-serif;
 
-    /* 1920px artboard → fluid */
-    --fs-display: clamp(48px, 6.2vw, 119px);   /* 119/118, -3.57px */
-    --fs-lead:    clamp(22px, 1.75vw, 34px);
-    --fs-cta:     clamp(28px, 2.6vw, 50px);
-    --fs-h3:      clamp(20px, 1.6vw, 30px);
-    --fs-body:    clamp(14px, .94vw, 18px);     /* 18/22 */
-    --fs-small:   clamp(12px, .8vw, 15px);
+    --sc-blue-bright:#1e4db2;   /* hover colour (Figma: R1 Ending CTA hover) */
 
-    --gutter: clamp(16px, 1vw, 20px);
+    /* Everything is designed on the 1920px artboard and scales proportionally:
+       --u is 1px at 1920 wide, so calc(N * var(--u)) matches the Figma at 1920. */
+    --u: calc(100vw / 1920);
+
+    /* Figma "Desktop Styles" */
+    --fs-display: calc(119 * var(--u));  --lh-display: 1;       --ls-display: -.03em;  /* Big Titles 119/119 -3% */
+    --fs-heading: calc(56 * var(--u));   --lh-heading: 1.0357;  --ls-heading: -.02em;  /* Headings 56/58 -2% */
+    --fs-lead:    calc(34 * var(--u));   --lh-lead: 1.1176;     --ls-lead: -.02em;     /* Large Body 34/38 -2% */
+    --fs-body:    calc(18 * var(--u));   --lh-body: 1.2222;                            /* Body 18/22 0% */
+
+    /* Figma "Desktop Padding" */
+    --sp-15: calc(15 * var(--u));  --sp-30: calc(30 * var(--u));  --sp-60: calc(60 * var(--u));
+    --sp-80: calc(80 * var(--u));  --sp-120: calc(120 * var(--u)); --sp-200: calc(200 * var(--u));
+
+    --gutter: calc(20 * var(--u));
     --col: 25vw;           /* 4-column grid */
     --indent: 9.4vw;       /* headline left edge */
     --title-top: calc(var(--gutter)*.6);
+    --ease: cubic-bezier(.22, 1, .36, 1);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -51,11 +60,23 @@
   .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
   /* ---- Shared bits ---- */
-  .display{font-size:var(--fs-display);line-height:.99;letter-spacing:-.03em;font-weight:400}
-  .more{display:inline-flex;gap:.6em;align-items:center;font-size:var(--fs-body);line-height:1.22}
+  .display{font-size:var(--fs-display);line-height:var(--lh-display);letter-spacing:var(--ls-display);font-weight:400}
+  .lead{font-size:var(--fs-lead);line-height:var(--lh-lead);letter-spacing:var(--ls-lead)}
+  .heading{font-size:var(--fs-heading);line-height:var(--lh-heading);letter-spacing:var(--ls-heading)}
+  /* "+ Find out more" (Figma: R1 Basic Button). Hover: the words lift and a line appears under them */
+  .more{display:inline-flex;gap:.6em;align-items:baseline;font-size:var(--fs-body);line-height:var(--lh-body)}
   .more::before{content:"+";font-weight:500}
-  .more:hover{text-decoration:underline;text-underline-offset:3px}
-  .caption{font-size:var(--fs-body);line-height:1.22}
+  .more > span{position:relative;display:inline-block;transition:transform .3s var(--ease)}
+  .more > span::after{content:"";position:absolute;left:0;right:0;top:calc(100% + .3em);
+    height:max(1px, calc(2 * var(--u)));background:currentColor;opacity:0;transform:translateY(.15em);
+    transition:opacity .3s var(--ease),transform .3s var(--ease)}
+  a.more:hover > span, a:hover .more > span{transform:translateY(-.28em)}
+  a.more:hover > span::after, a:hover .more > span::after{opacity:1;transform:none}
+  .caption{font-size:var(--fs-body);line-height:var(--lh-body)}
+
+  /* Lists (menu, footer): hovering one link fades the others back, like hkrarchitects.com */
+  .hover-dim a{transition:opacity .3s ease}
+  .hover-dim:has(a:hover) a:not(:hover){opacity:.4}
 
   /* ---- Header ---- */
   .site-header{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;justify-content:space-between;align-items:flex-start;
@@ -63,28 +84,27 @@
   .site-header > *{pointer-events:auto}
   .site-header.is-blue{color:var(--sc-blue)}
   .logo{display:block;font-weight:500;letter-spacing:-.02em;line-height:.88}
-  .logo-word{font-size:clamp(26px,2.3vw,44px);text-transform:uppercase}
+  .logo-word{font-size:calc(44 * var(--u));text-transform:uppercase}
   .logo-word span{display:block}
-  .logo-mark{display:none;font-size:clamp(28px,2.4vw,46px);line-height:.85;width:1.6em}
+  .logo-mark{display:none;font-size:calc(46 * var(--u));line-height:.85;width:1.6em}
   .logo-mark span{display:block}
   .logo-mark span:last-child{margin-top:.08em}
   .site-header.is-compact .logo-word{display:none}
   .site-header.is-compact .logo-mark{display:block}
 
-  .menu-btn{width:34px;height:30px;background:none;border:0;color:inherit;cursor:pointer;display:grid;place-items:center}
-  .menu-btn i{display:block;width:30px;height:4px;background:currentColor;box-shadow:0 -10px 0 currentColor,0 10px 0 currentColor;transition:box-shadow .2s}
+  .menu-btn{width:calc(34 * var(--u));height:calc(30 * var(--u));background:none;border:0;color:inherit;cursor:pointer;display:grid;place-items:center}
+  .menu-btn i{display:block;width:calc(30 * var(--u));height:calc(4 * var(--u));background:currentColor;box-shadow:0 calc(-10 * var(--u)) 0 currentColor,0 calc(10 * var(--u)) 0 currentColor;transition:box-shadow .2s}
   .nav-open .menu-btn i{box-shadow:none}
 
   .nav-bar{position:fixed;inset:0 0 auto 0;z-index:40;background:var(--sc-blue);color:var(--sc-white);
-    height:clamp(90px,7.5vw,140px);transform:translateY(-100%);transition:transform .35s ease}
+    height:calc(140 * var(--u));transform:translateY(-100%);transition:transform .35s ease}
   .nav-open .nav-bar{transform:none}
   .nav-open .site-header{color:var(--sc-white)}
   .nav-open .site-header .logo-word{display:block}
   .nav-open .site-header .logo-mark{display:none}
-  .nav-bar ul{list-style:none;display:flex;justify-content:space-between;width:calc(var(--col)*2 - 110px);
+  .nav-bar ul{list-style:none;display:flex;justify-content:space-between;width:calc(var(--col)*2 - 110 * var(--u));
     margin-left:calc(var(--col)*2);padding-top:var(--gutter);font-size:var(--fs-body)}
-  .nav-bar a:hover{text-decoration:underline;text-underline-offset:3px}
-  .nav-search{position:absolute;right:var(--gutter);top:calc(var(--gutter) + 40px);width:30px;height:30px;color:inherit;background:none;border:0;cursor:pointer}
+  .nav-search{position:absolute;right:var(--gutter);top:calc(var(--gutter) + 40 * var(--u));width:calc(30 * var(--u));height:calc(30 * var(--u));color:inherit;background:none;border:0;cursor:pointer}
 
   /* ---- Hero ---- */
   .hero{position:relative;height:100vh;min-height:620px;background:#dfe4ee}
@@ -136,7 +156,7 @@
 
   /* ---- Intro ---- */
   .intro{background:var(--sc-blue);color:var(--sc-white);min-height:75vh;padding:calc(var(--gutter)*2) var(--gutter) 10vh calc(var(--col)*2)}
-  .intro p{font-size:var(--fs-lead);line-height:1.18;max-width:20.5em}
+  .intro p{font-size:var(--fs-lead);line-height:var(--lh-lead);letter-spacing:var(--ls-lead);max-width:20.5em}
   .intro p + p{margin-top:1.15em}
   .intro .more{margin-top:2em}
 
@@ -147,7 +167,7 @@
   .panel{position:relative;height:100vh;min-height:620px;overflow:clip;isolation:isolate;color:var(--sc-white)}
   /* negative margin = never pushed up by the panel's bottom edge: the phrase stays pinned
      and is covered by the next panel (or clipped by this one) instead */
-  .panel-head{position:sticky;top:0;z-index:1;margin-bottom:-100vh}
+  .panel-head{position:sticky;top:0;z-index:1;opacity:var(--head-o,1);margin-bottom:-100vh}
   /* Shared first line: sticks to the top while the panels scroll under it */
   /* Track runs past the end of the projects so the prefix stays pinned until News covers it */
   .projects-track{position:absolute;top:0;left:0;right:0;bottom:-100vh;z-index:3;pointer-events:none}
@@ -155,42 +175,48 @@
   .projects-prefix span{display:block;padding:var(--title-top) var(--gutter) 0 var(--indent)}
   .panel > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .panel::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(0,0,0,.28),rgba(0,0,0,0) 45%)}
-  .panel h2{padding:calc(var(--title-top) + .99em) var(--gutter) 0 var(--indent);max-width:calc(var(--col)*3 - var(--gutter)*2)}
-  .panel .project-link{position:absolute;left:calc(var(--col)*3);top:calc(var(--title-top) + .99 * var(--fs-display) + var(--gutter)*.6)}
+  .panel h2{padding:calc(var(--title-top) + var(--lh-display) * 1em) var(--gutter) 0 var(--indent);max-width:calc(var(--col)*2 + var(--col)*.5)}
+  .panel .project-link{position:absolute;left:calc(var(--col)*3);top:calc(var(--title-top) + var(--lh-display) * var(--fs-display) + var(--gutter)*.6)}
   .panel .project-link .caption{display:block}
 
   /* ---- News ---- */
   .news{position:relative;z-index:4;background:var(--sc-slate);color:var(--sc-white);padding:12vh 0 14vh var(--indent)}
   .news-head{display:flex;align-items:baseline;padding-right:var(--gutter);margin-bottom:3.2vw}
-  .news-head h2{font-size:var(--fs-h3);font-weight:400;flex:1}
+  .news-head h2{font-size:var(--fs-lead);line-height:var(--lh-lead);letter-spacing:var(--ls-lead);font-weight:400;flex:1}
   .news-head .more{position:absolute;left:calc(var(--col)*3)}
-  .news-track{display:flex;gap:1vw;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-right:var(--gutter)}
+  /* Sideways scroll like krft.nl "Featured": trackpad / touch swipe or mouse drag, snaps to cards, no arrows */
+  .news-track{display:flex;gap:var(--gutter);overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;
+    scrollbar-width:none;padding-right:var(--gutter);cursor:grab;-webkit-user-select:none;user-select:none}
+  .news-track.is-dragging{cursor:grabbing;scroll-snap-type:none}
+  .news-track.is-dragging a{pointer-events:none}
+  .news-track img,.news-track a{-webkit-user-drag:none}
   .news-track::-webkit-scrollbar{display:none}
   .card{flex:0 0 32vw;scroll-snap-align:start}
   .card figure{aspect-ratio:1/1;overflow:hidden}
   .card img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
   .card:hover img{transform:scale(1.03)}
-  .card h3{font-size:var(--fs-h3);font-weight:400;line-height:1.2;margin-top:1.1vw;max-width:15em}
-  .card .meta{display:flex;gap:2.2em;font-size:var(--fs-small);margin-top:1.4em;opacity:0;transition:opacity .25s}
+  .card h3{font-size:var(--fs-lead);line-height:var(--lh-lead);letter-spacing:var(--ls-lead);font-weight:400;margin-top:var(--sp-30);max-width:15em}
+  .card .meta{display:flex;justify-content:flex-start;gap:var(--gutter);font-size:var(--fs-body);line-height:var(--lh-body);margin-top:var(--sp-30);opacity:0;transition:opacity .25s}
   .card:hover .meta,.card:focus-within .meta{opacity:1}
-  .card .meta span + span{margin-left:auto}
-  .news-nav{display:flex;gap:10px;margin-top:2.4vw}
-  .news-nav button{width:34px;height:34px;border:1px solid currentColor;border-radius:50%;background:none;color:inherit;cursor:pointer;font:inherit}
+  @media (hover: none){ .card .meta{opacity:1} }   /* touch screens have no hover */
 
   /* ---- Ending CTA ---- */
   .cta{position:relative;z-index:4;background:var(--sc-off-white);min-height:75vh;display:flex;align-items:center;padding:12vh var(--gutter) 12vh calc(var(--col)*2)}
-  .cta p{font-size:var(--fs-cta);line-height:1.15;letter-spacing:-.01em}
-  .cta a{display:inline-block;margin-top:1.1em;border-bottom:2px solid transparent;transition:border-color .2s}
-  .cta a:hover{border-color:currentColor}
+  .cta p{font-size:var(--fs-heading);line-height:var(--lh-heading);letter-spacing:var(--ls-heading)}
+  /* Figma: R1 Ending CTA. Hover: a plus slides in on the left and the line turns blue */
+  .cta a{display:inline-flex;align-items:baseline;margin-top:var(--sp-60);transition:color .35s ease}
+  .cta a::before{content:"+";font-weight:500;display:inline-block;overflow:hidden;max-width:0;margin-right:0;opacity:0;
+    transition:max-width .4s var(--ease),margin-right .4s var(--ease),opacity .3s ease}
+  .cta a:hover{color:var(--sc-blue-bright)}
+  .cta a:hover::before{max-width:1em;margin-right:.35em;opacity:1}
 
   /* ---- Footer ---- */
   .site-footer{position:relative;z-index:4;background:var(--sc-blue);color:var(--sc-white);display:grid;grid-template-columns:repeat(4,1fr);
-    padding:var(--gutter);min-height:42vh;font-size:var(--fs-body);line-height:1.22}
-  .site-footer .logo-word{font-size:clamp(32px,2.9vw,56px)}
+    padding:var(--gutter);min-height:42vh;font-size:var(--fs-body);line-height:var(--lh-body)}
+  .site-footer .logo-word{font-size:calc(56 * var(--u))}
   .site-footer ul{list-style:none;display:grid;gap:.85em;align-content:start}
   .site-footer .bottom{align-self:end;opacity:.55}
   .site-footer .muted{opacity:.55}
-  .site-footer a:hover{text-decoration:underline;text-underline-offset:3px}
 
   /* ---- Prototype badge ---- */
   .proto-badge{position:fixed;right:var(--gutter);bottom:var(--gutter);z-index:60;font:500 11px/1 system-ui;letter-spacing:.04em;text-transform:uppercase;
@@ -198,7 +224,8 @@
 
   /* ---- Mobile ---- */
   @media (max-width: 820px){
-    :root{--col:50vw;--indent:var(--gutter)}
+    /* No mobile design yet: phones get their own sizes instead of scaling the 1920 artboard */
+    :root{--col:50vw;--indent:var(--gutter);--u:.6px;--gutter:16px;--fs-body:15px;--fs-lead:22px;--fs-heading:30px}
     .hero h1{left:var(--gutter);top:auto;bottom:22vh}
     .hero .project-link{left:var(--gutter);top:auto;bottom:calc(var(--gutter)*2)}
     .panel .project-link{position:static;display:block;padding:12px var(--gutter) 0 var(--indent)}
@@ -232,7 +259,7 @@
 </header>
 
 <nav class="nav-bar" id="navBar" aria-label="Primary">
-  <ul>
+  <ul class="hover-dim">
     <li><a href="#">Work</a></li>
     <li><a href="#">Practice</a></li>
     <li><a href="#">Services</a></li>
@@ -262,7 +289,7 @@
       <h1 class="display" data-reveal-lift="4">Bringing life to buildings and buildings to life</h1>
       <a class="project-link" href="#">
         <span class="caption">Alfriston Swimming Pool</span><br>
-        <span class="more">Find out more</span>
+        <span class="more"><span>Find out more</span></span>
       </a>
     </div>
   </section>
@@ -271,7 +298,7 @@
   <section class="intro" data-theme="light">
     <p>Skelly + Couch are multi-award-winning building environment and services engineers. Our engineering shapes interactions between people and the built environment in a way that allows them to coexist in harmony.</p>
     <p>While much of what we do is out of sight, it is our work that brings life to buildings, and buildings to life.</p>
-    <a class="more" href="#">Discover our Work</a>
+    <a class="more" href="#"><span>Discover our Work</span></a>
   </section>
 
   <!-- ===== Layout: project_panels (repeater: image, statement, project title, link) ===== -->
@@ -283,42 +310,42 @@
       <img src="{{ $img('appleby.jpg') }}" alt="Appleby Blue Almshouse" loading="lazy">
       <div class="panel-head">
         <h2 class="display"><span class="sr-only">Skelly + Couch are </span>harmonising people with nature</h2>
-        <a class="project-link" href="#"><span class="caption">Appleby Blue Almshouse</span><span class="more">Find out more</span></a>
+        <a class="project-link" href="#"><span class="caption">Appleby Blue Almshouse</span><span class="more"><span>Find out more</span></span></a>
       </div>
     </section>
     <section class="panel" data-theme="light">
       <img src="{{ $img('rhodes.jpg') }}" alt="Rhodes House" loading="lazy">
       <div class="panel-head">
         <h2 class="display"><span class="sr-only">Skelly + Couch are </span>thinking against the grain</h2>
-        <a class="project-link" href="#"><span class="caption">Rhodes House</span><span class="more">Find out more</span></a>
+        <a class="project-link" href="#"><span class="caption">Rhodes House</span><span class="more"><span>Find out more</span></span></a>
       </div>
     </section>
     <section class="panel" data-theme="light">
       <img src="{{ $img('farmiloe.jpg') }}" alt="Farmiloe Building" loading="lazy">
       <div class="panel-head">
         <h2 class="display"><span class="sr-only">Skelly + Couch are </span>united in curiosity</h2>
-        <a class="project-link" href="#"><span class="caption">Farmiloe Building</span><span class="more">Find out more</span></a>
+        <a class="project-link" href="#"><span class="caption">Farmiloe Building</span><span class="more"><span>Find out more</span></span></a>
       </div>
     </section>
     <section class="panel" data-theme="light">
       <img src="{{ $img('vitsoe.jpg') }}" alt="Vitsœ" loading="lazy">
       <div class="panel-head">
         <h2 class="display"><span class="sr-only">Skelly + Couch are </span>applying collective intelligence</h2>
-        <a class="project-link" href="#"><span class="caption">Vitsœ</span><span class="more">Find out more</span></a>
+        <a class="project-link" href="#"><span class="caption">Vitsœ</span><span class="more"><span>Find out more</span></span></a>
       </div>
     </section>
     <section class="panel" data-theme="light">
       <img src="{{ $img('notting-hill.jpg') }}" alt="Notting Hill and Ealing School" loading="lazy">
       <div class="panel-head">
         <h2 class="display"><span class="sr-only">Skelly + Couch are </span>collaborating with clarity</h2>
-        <a class="project-link" href="#"><span class="caption">Notting Hill and Ealing School</span><span class="more">Find out more</span></a>
+        <a class="project-link" href="#"><span class="caption">Notting Hill and Ealing School</span><span class="more"><span>Find out more</span></span></a>
       </div>
     </section>
     <section class="panel" data-theme="light">
       <img src="{{ $img('people.jpg') }}" alt="Skelly + Couch engineers reviewing a material board" loading="lazy">
       <div class="panel-head">
         <h2 class="display"><span class="sr-only">Skelly + Couch are </span>a hotbed for growth</h2>
-        <a class="project-link" href="#"><span class="caption">People</span><span class="more">Find out more</span></a>
+        <a class="project-link" href="#"><span class="caption">People</span><span class="more"><span>Find out more</span></span></a>
       </div>
     </section>
   </div>
@@ -327,7 +354,7 @@
   <section class="news" id="news" data-theme="light">
     <div class="news-head">
       <h2>News</h2>
-      <a class="more" href="#">Read more</a>
+      <a class="more" href="#"><span>Read more</span></a>
     </div>
     <div class="news-track" id="newsTrack">
       <article class="card">
@@ -351,10 +378,28 @@
           <div class="meta"><span>02.05.26</span><span>Thought Piece</span></div>
         </a>
       </article>
-    </div>
-    <div class="news-nav">
-      <button data-dir="-1" aria-label="Previous">←</button>
-      <button data-dir="1" aria-label="Next">→</button>
+      <!-- prototype: same three articles repeated to show the sideways scroll -->
+      <article class="card">
+        <a href="#">
+          <figure><img src="{{ $img('news-1.jpg') }}" alt="" loading="lazy"></figure>
+          <h3>Skelly + Couch’s RIBA National Awards high five</h3>
+          <div class="meta"><span>24.06.26</span><span>Awards</span><span>News</span></div>
+        </a>
+      </article>
+      <article class="card">
+        <a href="#">
+          <figure><img src="{{ $img('news-2.jpg') }}" alt="" loading="lazy"></figure>
+          <h3>Appleby Blue Wins RIBA Stirling Prize 2025 in a Major Triple Victory</h3>
+          <div class="meta"><span>12.06.26</span><span>Awards</span><span>News</span><span>Thought Piece</span></div>
+        </a>
+      </article>
+      <article class="card">
+        <a href="#">
+          <figure><img src="{{ $img('news-3.jpg') }}" alt="" loading="lazy"></figure>
+          <h3>S + C Focus on Theatre</h3>
+          <div class="meta"><span>02.05.26</span><span>Thought Piece</span></div>
+        </a>
+      </article>
     </div>
   </section>
 
@@ -368,7 +413,7 @@
 <footer class="site-footer" data-theme="light">
   <div><a class="logo" href="#top"><span class="logo-word"><span>Skelly</span><span>+Couch</span></span></a></div>
   <div>Bringing life to buildings,<br>and buildings to life.</div>
-  <ul>
+  <ul class="hover-dim">
     <li><a href="#">Work</a></li>
     <li><a href="#">Practice</a></li>
     <li><a href="#">Services</a></li>
@@ -377,8 +422,8 @@
   </ul>
   <div class="muted">Design by TM</div>
   <div></div><div></div>
-  <div class="bottom"><a href="#">Instagram</a><br><a href="#">Linkedin</a></div>
-  <div class="bottom"><a href="#">Cookies &amp; Privacy Policy</a><br>©2026 Skelly + Couch</div>
+  <div class="bottom hover-dim"><a href="#">Instagram</a><br><a href="#">Linkedin</a></div>
+  <div class="bottom hover-dim"><a href="#">Cookies &amp; Privacy Policy</a><br>©2026 Skelly + Couch</div>
 </footer>
 
 <div class="proto-badge">Prototype</div>
@@ -566,11 +611,55 @@
   addEventListener('scroll', updateHeader, {passive:true});
   updateHeader();
 
-  // News carousel arrows
-  const track = document.getElementById('newsTrack');
-  document.querySelectorAll('.news-nav button').forEach(b => b.addEventListener('click', () => {
-    track.scrollBy({left: track.querySelector('.card').offsetWidth * +b.dataset.dir, behavior:'smooth'});
+  // Project phrases: each fades in as its image comes up and fades out as the next one arrives
+  const heads = [...document.querySelectorAll('.panel')].map((panel, i, all) => ({
+    head: panel.querySelector('.panel-head'),
+    panel,
+    next: all[i + 1] || document.getElementById('news'),
   }));
+  const clamp01 = v => Math.min(1, Math.max(0, v));
+  let headsQueued = false;
+  function updateHeads() {
+    headsQueued = false;
+    const H = innerHeight;
+    for (const { head, panel, next } of heads) {
+      const top = panel.getBoundingClientRect().top;
+      const nextTop = next.getBoundingClientRect().top;
+      const fadeIn = clamp01((H * .85 - top) / (H * .4));      // panel top 85% → 45% of the screen
+      const fadeOut = clamp01((nextTop - H * .4) / (H * .35));  // next panel top 75% → 40%
+      head.style.setProperty('--head-o', Math.min(fadeIn, fadeOut).toFixed(3));
+    }
+  }
+  const queueHeads = () => { if (!headsQueued) { headsQueued = true; requestAnimationFrame(updateHeads); } };
+  addEventListener('scroll', queueHeads, { passive: true });
+  addEventListener('resize', queueHeads);
+  updateHeads();
+
+  // News: drag with the mouse to scroll sideways (touch and trackpads scroll natively), then snap to a card
+  const track = document.getElementById('newsTrack');
+  let drag = null;
+  track.addEventListener('dragstart', e => e.preventDefault());   // stop the browser dragging the link/image
+  track.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    drag = { x: e.clientX, left: track.scrollLeft, moved: false };
+  });
+  addEventListener('pointermove', e => {
+    if (!drag) return;
+    const dx = e.clientX - drag.x;
+    if (!drag.moved && Math.abs(dx) > 4) { drag.moved = true; track.classList.add('is-dragging'); }
+    if (drag.moved) track.scrollLeft = drag.left - dx;
+  });
+  addEventListener('pointerup', () => {
+    if (!drag) return;
+    const moved = drag.moved; drag = null;
+    if (!moved) return;
+    // Snap to the nearest card, then hand control back to native scroll snapping
+    const cards = [...track.querySelectorAll('.card')];
+    const x0 = cards[0].offsetLeft, pos = c => c.offsetLeft - x0;
+    const target = cards.reduce((best, c) => Math.abs(pos(c) - track.scrollLeft) < Math.abs(pos(best) - track.scrollLeft) ? c : best);
+    track.scrollTo({ left: pos(target), behavior: 'smooth' });
+    setTimeout(() => track.classList.remove('is-dragging'), 450);
+  });
 @endverbatim
 </script>
 </body>
