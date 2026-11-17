@@ -19,7 +19,12 @@ Homepage prototype: logo and menu, from George's recordings (homeScroll, OpenMen
   The fixed S+C mark and menu icon sit behind the hero: they are revealed by the blue section's top edge as you scroll
   down, and covered again when you scroll back up.
 - **Menu icon:** bars as wide as the S (30px) and as thick as the plus stroke (6.24px), 20px from the right.
-- **Menu:** a 103px blue bar wipes down from the top. It holds the white wordmark (covering the S+C mark), the links
+- **Project links ("Appleby Blue Almshouse / + Find out more")** are fixed to their panel: they scroll with the image
+  and no longer fade with the large titles.
+- **Large titles:** each phrase now arrives at the top of its image (no empty line above it) and pins one line down,
+  under "Skelly + Couch are". The project links sit at the top right of every panel, the first one included.
+- **Menu:** a blue bar wipes down from the top. Its height follows the wordmark, with 20px above and below it
+  (130px at 1920 with the fallback font). It holds the white wordmark (covering the S+C mark), the links
   in one row from the middle of the screen, and a search icon under the menu icon. As it opens, the menu icon's
   lower bars slide up into the top bar; closing reverses both. Escape also closes it.
 

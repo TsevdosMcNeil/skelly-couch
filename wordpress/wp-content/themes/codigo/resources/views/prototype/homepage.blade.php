@@ -51,6 +51,7 @@
     --indent: 9.4vw;       /* headline left edge */
     --title-top: calc(var(--gutter)*.6);
     --ease: cubic-bezier(.22, 1, .36, 1);
+    --line: calc(var(--lh-display) * var(--fs-display));
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -106,10 +107,11 @@
   /* ---- Menu bar (Figma: OpenMenu) ----
      Wipes down from the top over everything; content stays in place and is revealed by the moving edge.
      Inside: white wordmark (it covers the S+C mark), links, the menu icon collapsing into one bar, search. */
-  .nav-bar{position:fixed;inset:0 0 auto 0;z-index:100;height:calc(103 * var(--u));background:var(--sc-blue);color:var(--sc-white);
+  .nav-bar{position:fixed;inset:0 0 auto 0;z-index:100;padding:calc(20 * var(--u)) var(--gutter);background:var(--sc-blue);color:var(--sc-white);
     clip-path:inset(0 0 100% 0);pointer-events:none;transition:clip-path .45s cubic-bezier(.65, 0, .35, 1)}
   .nav-open .nav-bar{clip-path:inset(0 0 0 0);pointer-events:auto}
-  .nav-bar .logo{position:absolute;left:var(--gutter);top:calc(20 * var(--u))}
+  /* the bar's height follows the wordmark: 20px above and below it */
+  .nav-bar .logo{position:relative;width:max-content}
   .nav-bar ul{list-style:none;display:flex;justify-content:space-between;position:absolute;
     left:calc(var(--col)*2);width:calc(780 * var(--u));top:calc(20 * var(--u));font-size:var(--fs-body);line-height:var(--lh-body)}
   .nav-bar .burger{transition-delay:0s}
@@ -187,7 +189,8 @@
   .panel{position:relative;height:100vh;min-height:620px;overflow:clip;isolation:isolate;color:var(--sc-white)}
   /* negative margin = never pushed up by the panel's bottom edge: the phrase stays pinned
      and is covered by the next panel (or clipped by this one) instead */
-  .panel-head{position:sticky;top:0;z-index:1;opacity:var(--head-o,1);margin-bottom:-100vh}
+  /* The phrase rides at the top of its panel and pins one line down, under "Skelly + Couch are" */
+  .panel-head{position:sticky;top:var(--line);z-index:1;opacity:var(--head-o,1);margin-bottom:-100vh}
   /* Shared first line: sticks to the top while the panels scroll under it */
   /* Track runs past the end of the projects so the prefix stays pinned until News covers it */
   .projects-track{position:absolute;top:0;left:0;right:0;bottom:-100vh;z-index:3;pointer-events:none}
@@ -195,8 +198,12 @@
   .projects-prefix span{display:block;padding:var(--title-top) var(--gutter) 0 var(--indent)}
   .panel > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .panel::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(0,0,0,.28),rgba(0,0,0,0) 45%)}
-  .panel h2{padding:calc(var(--title-top) + var(--lh-display) * 1em) var(--gutter) 0 var(--indent);max-width:calc(var(--col)*2 + var(--col)*.5)}
-  .panel .project-link{position:absolute;left:calc(var(--col)*3);top:calc(var(--title-top) + var(--lh-display) * var(--fs-display) + var(--gutter)*.6)}
+  .panel h2{padding:var(--title-top) var(--gutter) 0 var(--indent);max-width:calc(var(--col)*2 + var(--col)*.5)}
+  /* Project link is fixed to the panel: it scrolls with the image and never fades */
+  .panel .project-link{position:absolute;z-index:1;left:calc(var(--col)*3);top:calc(var(--title-top) + var(--gutter)*.6)}
+  /* First panel arrives together with "Skelly + Couch are", so its phrase starts one line down */
+  .panel:first-of-type h2{padding-top:calc(var(--title-top) + var(--line))}
+  .panel:first-of-type .panel-head{top:0}
   .panel .project-link .caption{display:block}
 
   /* ---- News ---- */
@@ -248,7 +255,7 @@
     :root{--col:50vw;--indent:var(--gutter);--u:.6px;--gutter:16px;--fs-body:15px;--fs-lead:22px;--fs-heading:30px}
     .hero h1{left:var(--gutter);top:auto;bottom:22vh}
     .hero .project-link{left:var(--gutter);top:auto;bottom:calc(var(--gutter)*2)}
-    .panel .project-link{position:static;display:block;padding:12px var(--gutter) 0 var(--indent)}
+    .panel .project-link{left:var(--gutter);top:auto;bottom:calc(var(--gutter)*2)}
     .intro,.cta{padding-left:var(--gutter)}
     .intro{padding-top:96px}
     :root{--title-top:80px;--fs-display:min(11vw, 48px)}
@@ -256,6 +263,7 @@
     .card{flex-basis:78vw}
     .news-head .more{position:static}
     .nav-bar{height:auto;padding:90px var(--gutter) 30px}
+    .nav-bar .logo{position:absolute;left:var(--gutter);top:calc(20 * var(--u))}
     .nav-bar ul{position:static;flex-direction:column;gap:16px;margin:0;width:auto;font-size:22px}
     .nav-search{top:auto;bottom:30px}
     .site-footer{grid-template-columns:1fr 1fr;gap:30px var(--gutter)}
@@ -331,43 +339,43 @@
       <img src="{{ $img('appleby.jpg') }}" alt="Appleby Blue Almshouse" loading="lazy">
       <div class="panel-head">
         <h2 class="display"><span class="sr-only">Skelly + Couch are </span>harmonising people with nature</h2>
-        <a class="project-link" href="#"><span class="caption">Appleby Blue Almshouse</span><span class="more"><span>Find out more</span></span></a>
       </div>
+      <a class="project-link" href="#"><span class="caption">Appleby Blue Almshouse</span><span class="more"><span>Find out more</span></span></a>
     </section>
     <section class="panel" data-theme="light">
       <img src="{{ $img('rhodes.jpg') }}" alt="Rhodes House" loading="lazy">
       <div class="panel-head">
         <h2 class="display"><span class="sr-only">Skelly + Couch are </span>thinking against the grain</h2>
-        <a class="project-link" href="#"><span class="caption">Rhodes House</span><span class="more"><span>Find out more</span></span></a>
       </div>
+      <a class="project-link" href="#"><span class="caption">Rhodes House</span><span class="more"><span>Find out more</span></span></a>
     </section>
     <section class="panel" data-theme="light">
       <img src="{{ $img('farmiloe.jpg') }}" alt="Farmiloe Building" loading="lazy">
       <div class="panel-head">
         <h2 class="display"><span class="sr-only">Skelly + Couch are </span>united in curiosity</h2>
-        <a class="project-link" href="#"><span class="caption">Farmiloe Building</span><span class="more"><span>Find out more</span></span></a>
       </div>
+      <a class="project-link" href="#"><span class="caption">Farmiloe Building</span><span class="more"><span>Find out more</span></span></a>
     </section>
     <section class="panel" data-theme="light">
       <img src="{{ $img('vitsoe.jpg') }}" alt="Vitsœ" loading="lazy">
       <div class="panel-head">
         <h2 class="display"><span class="sr-only">Skelly + Couch are </span>applying collective intelligence</h2>
-        <a class="project-link" href="#"><span class="caption">Vitsœ</span><span class="more"><span>Find out more</span></span></a>
       </div>
+      <a class="project-link" href="#"><span class="caption">Vitsœ</span><span class="more"><span>Find out more</span></span></a>
     </section>
     <section class="panel" data-theme="light">
       <img src="{{ $img('notting-hill.jpg') }}" alt="Notting Hill and Ealing School" loading="lazy">
       <div class="panel-head">
         <h2 class="display"><span class="sr-only">Skelly + Couch are </span>collaborating with clarity</h2>
-        <a class="project-link" href="#"><span class="caption">Notting Hill and Ealing School</span><span class="more"><span>Find out more</span></span></a>
       </div>
+      <a class="project-link" href="#"><span class="caption">Notting Hill and Ealing School</span><span class="more"><span>Find out more</span></span></a>
     </section>
     <section class="panel" data-theme="light">
       <img src="{{ $img('people.jpg') }}" alt="Skelly + Couch engineers reviewing a material board" loading="lazy">
       <div class="panel-head">
         <h2 class="display"><span class="sr-only">Skelly + Couch are </span>a hotbed for growth</h2>
-        <a class="project-link" href="#"><span class="caption">People</span><span class="more"><span>Find out more</span></span></a>
       </div>
+      <a class="project-link" href="#"><span class="caption">People</span><span class="more"><span>Find out more</span></span></a>
     </section>
   </div>
 
