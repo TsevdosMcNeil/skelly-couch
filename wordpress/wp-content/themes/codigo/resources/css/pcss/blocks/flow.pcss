@@ -1,0 +1,104 @@
+/*
+ * Flow: the inside of a Section and of a Chapter.
+ *
+ * Text blocks (Paragraph, Heading, List, Buttons, plain Table) sit in the right half of the grid, 460 wide at 1920.
+ * An Image on its own: no alignment = right half (770) · Wide = between the page margins (1560) · Full = edge to edge.
+ * Columns and Grids sit between the page margins with the 20px gutter; whatever is inside fills its column.
+ *
+ * The inner blocks are children of .flow > .acf-innerblocks-container (ACF adds it on the front end and in the
+ * editor). The Image block is the same <figure class="wp-block-image align…"> on the front end and in the editor.
+ *
+ * This file is imported WITHOUT a cascade layer: it overrides WordPress's core block CSS (Columns, Table,
+ * Button…), which is unlayered and would otherwise win over anything in a layer.
+ *
+ * Rhythm (at 1920): 80 between blocks, 1.45em between paragraphs, 120 at the end.
+ */
+.section { padding: calc(40 * var(--u)) 0 var(--sp-120); }
+.chapter__body { padding: var(--sp-80) 0 var(--sp-120); }
+
+:is(.flow, .flow > .acf-innerblocks-container) > * { margin-block: 0; }
+:is(.flow, .flow > .acf-innerblocks-container) > * + * { margin-top: var(--sp-80); }
+
+:is(.flow, .flow > .acf-innerblocks-container) > :is(p, h1, h2, h3, h4, h5, h6, ul, ol, .wp-block-buttons, .wp-block-table:not(.is-style-facts), .wp-block-quote) {
+  margin-left: var(--half);
+  margin-right: var(--margin);
+  max-width: var(--text-width);
+}
+:is(.flow, .flow > .acf-innerblocks-container) > :is(p, ul, ol, h1, h2, h3, h4, h5, h6) + :is(p, ul, ol) { margin-top: 1.45em; }
+:is(.flow, .flow > .acf-innerblocks-container) > :is(p, ul, ol) + :is(h3, h4) { margin-top: var(--sp-60); }
+:is(.flow, .flow > .acf-innerblocks-container) > :is(p, ul, ol) + .wp-block-buttons { margin-top: var(--sp-60); }
+
+/* Paragraphs at Large Body take the full right half (770) */
+:is(.flow, .flow > .acf-innerblocks-container) > p.has-lead-font-size { max-width: calc(770 * var(--u)); }
+
+/* Headings inside the text column: bold Body (Figma: "Stairwells", "Basement") */
+.flow :is(h3, h4, h5, h6):not([class*="-font-size"]) { font-size: var(--text-body); line-height: var(--lh-body); font-weight: 600; }
+
+/* Lists: "+" bullets */
+.flow :is(ul, ol):not([class*="wp-block-"]) { list-style: none; padding: 0; }
+.flow ul:not([class*="wp-block-"]) > li::before { content: "+ "; }
+.flow p a, .flow li a { text-decoration: underline; text-underline-offset: .15em; }
+
+/* ---------- Images on their own ---------- */
+:is(.flow, .flow > .acf-innerblocks-container) > .wp-block-image {
+  margin-left: var(--half);
+  margin-right: var(--margin);
+}
+:is(.flow, .flow > .acf-innerblocks-container) > .wp-block-image.alignwide { margin-left: var(--margin); margin-right: var(--margin); max-width: none; width: auto; }
+:is(.flow, .flow > .acf-innerblocks-container) > .wp-block-image.alignfull { margin-left: 0; margin-right: 0; max-width: none; width: auto; }
+
+/* Images fill their space (unless the editor gave them a width) */
+.flow .wp-block-image:not(.is-resized) img { width: 100%; }
+
+/* A full-width image sits straight under the chapter bar */
+.chapter__body:has(> .acf-innerblocks-container > .wp-block-image.alignfull:first-child) { padding-top: 0; }
+
+/* ---------- Rows of images: core Columns and Grid ---------- */
+:is(.flow, .flow > .acf-innerblocks-container) > :is(.wp-block-columns:not(.is-style-grid-split), .wp-block-group.is-layout-grid) {
+  margin-left: var(--margin);
+  margin-right: var(--margin);
+  max-width: none;
+  gap: var(--gutter);
+}
+.flow .wp-block-columns:not(.is-style-grid-split) { align-items: flex-start !important; } /* images line up at the top; WP sets normal !important */
+.flow :is(.wp-block-column, .is-layout-grid) > .wp-block-image { margin: 0; }
+.flow :is(.wp-block-column, .is-layout-grid) > * + * { margin-top: var(--gutter); }
+
+/* Captions (Figma: Body, 20 under the image, text column width) */
+.flow .wp-block-image :where(figcaption) {
+  margin: calc(20 * var(--u)) 0 0; max-width: var(--text-width);
+  font-size: var(--text-body); line-height: var(--lh-body); text-align: left;
+}
+
+/* ---------- Core block styles (registered in resources/js/styles) ---------- */
+
+/* Columns → "Grid split": left column from the content edge, right column in the right half (Introduction) */
+.wp-block-columns.is-style-grid-split {
+  display: grid; grid-template-columns: calc(var(--half) - var(--margin)) calc(770 * var(--u));
+  gap: 0; margin-left: var(--margin); margin-right: var(--margin);
+}
+.wp-block-columns.is-style-grid-split > .wp-block-column { margin: 0; min-width: 0; }
+.wp-block-columns.is-style-grid-split > .wp-block-column > * + * { margin-top: 1.15em; }
+
+/* Table → "Facts": two columns, labels faded, no borders (Architect / Client / …) */
+.wp-block-table.is-style-facts { margin: 0; }
+.wp-block-table.is-style-facts table { border-collapse: collapse; width: auto; font-size: var(--text-body); line-height: var(--lh-body); }
+.wp-block-table.is-style-facts :is(td, th) { border: 0; padding: 0; text-align: left; vertical-align: top; font-weight: 400; }
+.wp-block-table.is-style-facts td:first-child { width: calc(156 * var(--u)); opacity: .55; }
+.wp-block-table.is-style-facts :is(thead, tfoot, figcaption) { display: none; }
+
+/* Button → "Plus link" (Figma: R1 Basic Button "+ Back to all projects") */
+.wp-block-button.is-style-plus .wp-block-button__link {
+  display: inline-flex; gap: .6em; align-items: baseline; padding: 0; border: 0; border-radius: 0;
+  background: none; color: inherit; font-size: var(--text-body); line-height: var(--lh-body);
+}
+.wp-block-button.is-style-plus .wp-block-button__link::before { content: "+"; font-weight: 500; }
+.wp-block-button.is-style-plus .wp-block-button__link { transition: color .3s var(--ease); }
+.wp-block-button.is-style-plus .wp-block-button__link:hover { color: var(--sc-blue-bright); }
+
+@media (max-width: 820px) {
+  .section, .chapter__body { padding-bottom: 60px; }
+  :is(.flow, .flow > .acf-innerblocks-container) > .wp-block-image:not(.alignfull) { margin-left: var(--margin); }
+  :is(.flow, .flow > .acf-innerblocks-container) > * + * { margin-top: 40px; }
+  .wp-block-columns.is-style-grid-split { grid-template-columns: 1fr; gap: 30px; }
+}

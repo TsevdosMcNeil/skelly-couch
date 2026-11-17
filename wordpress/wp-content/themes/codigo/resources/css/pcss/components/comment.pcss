@@ -1,0 +1,74 @@
+/*
+ * Comment "+": fixed markers on an image.
+ *  - magnify: hovering the image shows a magnified square by each "+"; hovering a "+" turns its square
+ *             into a slate note (Figma: CommentPlus_MagnifyingGlassEffect)
+ *  - grow:    hovering the "+" grows a plaster note out of it; the "+" rides to the far corner and fades;
+ *             the picture dims a little (Figma: CommentPlus_GrowingEffect)
+ *
+ * (--x, --y) is the note's corner (comment--top-right = the note's top-right corner, it opens down and left).
+ * The "+" sits inside that corner, --plus-inset px (at 1920) in from both edges (0 = flush in the corner).
+ * Per comment, from the editor: --plus-inset, --plus-color, --note-bg, --note-fg (text colour picked for contrast).
+ */
+.comment {
+  position: absolute; left: var(--x); top: var(--y); z-index: 5; width: 0; height: 0;
+  --box: calc(150 * var(--u));
+  --hit: calc(10 * var(--u));                                      /* the button's padding around the glyph */
+  --inset: calc(var(--plus-inset, 0) * var(--u) - var(--hit));    /* corner → glyph edge, minus that padding */
+}
+
+.comment__plus {
+  position: absolute; left: 0; top: 0; z-index: 2; padding: var(--hit); margin: 0;
+  background: none; border: 0; color: var(--plus-color, var(--color-white)); cursor: pointer; line-height: 0;
+  transform: var(--at);
+  transition: transform .4s var(--ease-hover), opacity var(--t-hover) var(--ease-hover);
+}
+.comment--top-left     { --at: translate(var(--inset), var(--inset)); }
+.comment--top-right    { --at: translate(calc(-100% - var(--inset)), var(--inset)); }
+.comment--bottom-left  { --at: translate(var(--inset), calc(-100% - var(--inset))); }
+.comment--bottom-right { --at: translate(calc(-100% - var(--inset)), calc(-100% - var(--inset))); }
+.comment__plus .plus-icon { width: calc(22 * var(--u)); height: calc(23 * var(--u)); }
+
+.comment__box { position: absolute; width: var(--box); height: var(--box); pointer-events: none; }
+.comment--top-left     .comment__box { left: 0; top: 0; }
+.comment--top-right    .comment__box { right: 0; top: 0; }
+.comment--bottom-left  .comment__box { left: 0; bottom: 0; }
+.comment--bottom-right .comment__box { right: 0; bottom: 0; }
+
+.comment__text {
+  position: absolute; inset: 0; padding: var(--sp-15);
+  font-size: var(--text-body); line-height: var(--lh-body); text-wrap: pretty;
+}
+
+/* ---- Magnifying glass ---- */
+.comment__zoom {
+  position: absolute; inset: 0; background-repeat: no-repeat;
+  background-size: var(--zoom-size, 0 0); background-position: var(--zoom-pos, 0 0);
+  opacity: 0; transition: opacity var(--t-hover) var(--ease-hover);
+}
+.comment--magnify .comment__text {
+  background: var(--note-bg, var(--color-slate)); color: var(--note-fg, var(--color-white));
+  opacity: 0; transition: opacity var(--t-hover) var(--ease-hover);
+}
+.figure__media:hover .comment--magnify .comment__zoom,
+.comment--magnify.is-open .comment__zoom { opacity: 1; }
+.comment--magnify.is-open .comment__text { opacity: 1; }
+.comment--magnify.is-open .comment__box { pointer-events: auto; }
+.comment--magnify.is-open .comment__plus { opacity: 0; }   /* the "+" sits inside the note: it gives way to the text */
+
+/* ---- Growing ---- */
+.comment--grow .comment__text {
+  background: var(--note-bg, var(--color-plaster)); color: var(--note-fg, var(--color-black));
+  clip-path: var(--closed); transition: clip-path .4s var(--ease-hover);
+}
+.comment--grow.comment--top-left     { --closed: inset(0 100% 100% 0); --to: translate(calc(var(--box) - 100% - var(--inset)), calc(var(--box) - 100% - var(--inset))); }
+.comment--grow.comment--top-right    { --closed: inset(0 0 100% 100%); --to: translate(calc(-1 * var(--box) + var(--inset)), calc(var(--box) - 100% - var(--inset))); }
+.comment--grow.comment--bottom-left  { --closed: inset(100% 100% 0 0); --to: translate(calc(var(--box) - 100% - var(--inset)), calc(-1 * var(--box) + var(--inset))); }
+.comment--grow.comment--bottom-right { --closed: inset(100% 0 0 100%); --to: translate(calc(-1 * var(--box) + var(--inset)), calc(-1 * var(--box) + var(--inset))); }
+.comment--grow.is-open .comment__text { clip-path: inset(0 0 0 0); }
+.comment--grow.is-open .comment__box { pointer-events: auto; }
+.comment--grow.is-open .comment__plus { transform: var(--to); opacity: 0; }
+
+@media (max-width: 820px) {
+  .comment { --box: 140px; }
+  .comment__text { padding: 10px; font-size: 13px; }
+}

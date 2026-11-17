@@ -1,0 +1,14 @@
+/* Editor only. The page CSS above is loaded into the editor too, so blocks look like the front end. */
+
+/* Placeholder for blocks that still need an image */
+.block-placeholder {
+  display: grid; place-items: center; min-height: calc(300 * var(--u)); padding: 20px;
+  background: repeating-linear-gradient(45deg, rgb(0 0 0 / .04) 0 10px, transparent 10px 20px), var(--color-off-white);
+  color: var(--color-slate); font-size: 13px; text-align: center;
+}
+
+/* The chapter bar sticks inside the editor canvas too, under the block toolbar */
+.editor-styles-wrapper .chapter-bar { z-index: 2; }
+
+/* No gap between top-level blocks: sections and chapters butt up against each other like on the page */
+.editor-styles-wrapper .is-root-container > * { margin-block: 0; }

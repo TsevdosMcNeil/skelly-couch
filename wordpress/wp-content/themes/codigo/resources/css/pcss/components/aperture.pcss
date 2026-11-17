@@ -1,0 +1,26 @@
+/*
+ * Aperture "+": a square window in the image showing a second image (same framing).
+ * Activating it grows the second image to cover the picture; a small square of the original
+ * stays where the window was (the "ghost"). JS drives the clip-paths in px.
+ * Without JS the extra layers stay hidden and you just get the image.
+ */
+.aperture__layer, .aperture__ghost { position: absolute; inset: 0; z-index: 2; pointer-events: none; visibility: hidden; }
+.aperture__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.aperture__ghost { z-index: 3; opacity: 0; }
+.is-aperture-ready .aperture__layer, .is-aperture-ready .aperture__ghost { visibility: visible; }
+.is-aperture-ready.is-aperture-click { cursor: pointer; }
+.is-aperture-ready .aperture__layer { will-change: clip-path; }
+
+/* "+" on the window's bottom-left corner (centred on the corner, like the Figma) */
+.aperture__plus {
+  position: absolute; left: 0; top: 0; z-index: 4; padding: calc(10 * var(--u)); margin: 0;
+  background: none; border: 0; cursor: pointer; line-height: 0;
+  transform: translate(calc(var(--ax, 0px) - 50%), calc(var(--ay, 0px) - 50%));
+  transition: opacity var(--t-hover) var(--ease-hover);
+  visibility: hidden;
+}
+.is-aperture-ready .aperture__plus { visibility: visible; }
+.aperture__plus--white { color: var(--color-white); }
+.aperture__plus--blue { color: var(--color-blue); }
+.aperture__plus .plus-icon { width: calc(22 * var(--u)); height: calc(23 * var(--u)); }
+.is-aperture-open .aperture__plus { opacity: 0; }

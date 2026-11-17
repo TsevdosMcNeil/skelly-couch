@@ -17,17 +17,11 @@
         {{ __('Skip to content', 'sage') }}
       </a>
 
-      @include('sections.header')
+      @include('sections.header', ['mark' => ! is_singular('project')])
 
       <main id="main" class="main">
         @yield('content')
       </main>
-
-      @hasSection('sidebar')
-        <aside class="sidebar">
-          @yield('sidebar')
-        </aside>
-      @endif
 
       @include('sections.footer')
     </div>

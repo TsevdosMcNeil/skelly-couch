@@ -8,6 +8,48 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
+## [0.0.5] - 2026-11-17
+
+Project page, first part, built with Gutenberg blocks: ACF Composer blocks for the custom parts, core blocks
+with theme styles for everything else. From the Figma "Project Page — Type A" (Rhodes House) and George's recordings.
+
+### Added
+- **Post types:** `project` (URL `/work/{slug}`, block editor) and `member` (Team, URL `/people/{slug}`).
+  A new project starts with Project Hero, a blue Section (facts + lead) and a Chapter.
+- **ACF Composer blocks** (`app/Blocks`, views in `resources/views/blocks`, "Skelly + Couch" category):
+  - **Project Hero:** project name (post title), subtitle, full-width image. Fields saved as post meta.
+  - **Section:** coloured band holding any blocks (the introduction). Optional name for the "+" menu.
+  - **Chapter:** sticky bar (project name · title · "+") over any blocks; the next chapter's bar pushes it off.
+    The "+" turns the bar plaster and opens a drop-down listing the page's sections (Figma "Scroll to": 1000ms).
+- **Image block + aperture and comments:** the core Image block gets an **aperture "+"** (click or hover,
+  set per image) and **comment "+"** markers (magnifying glass or growing note), in two sidebar panels.
+  Positions are set by clicking on the image in the editor, which also shows the window and the markers.
+  Each comment has a "+" padding (gap from the note's corner, px at 1920, default 0), a "+" colour and a note
+  background colour; the note text turns black or white for contrast.
+  Editors keep everything Image already has (alignment, size, crop, link, caption, replace…). A click aperture
+  switches off "Expand on click" for that image. Front-end markup: `render_block_core/image` in `app/blocks.php`.
+- **Images on the page grid:** an Image on its own uses the alignment toolbar: none = right half,
+  Wide = between the page margins, Full width = edge to edge. Rows of images are core **Columns** or **Grid**
+  (any number of images, any widths), on the page margins with the 20px gutter.
+- **Core block styles** (`resources/js/styles`, auto-registered as in SAGE.md): Columns "Grid split",
+  Table "Facts", Button "Plus link". Text blocks inside a Section or Chapter sit in the right half.
+- The block CSS (`pcss/blocks`) is imported without a cascade layer, so it wins over WordPress's core block CSS.
+- The fixed menu icon, menu bar and sticky chapter bars sit below the WordPress admin bar when logged in.
+- **Editor:** palette (White, Off-white, Plaster, Blue, Slate, Black) and font sizes (Body, Large Body, Heading,
+  Big Title) from the Figma; the page CSS is loaded into the editor so blocks look like the front end.
+- **Team member fields** (ACF, sidebar): role, key projects. Photo = featured image, About = the editor.
+- **Design system in the theme:** tokens in `resources/css/base.css`, custom CSS in `resources/css/pcss/`
+  (header, menu bar, footer ported from the homepage prototype).
+- **Seed:** `scripts/seed-rhodes-house.php` builds Rhodes House from blocks.
+
+### Pending
+- Work in progress on `feature/project-blocks`, not merged into `main` until the whole Project page is reviewed.
+- Remaining parts of the Project page: Contents, image carousel, Impact stats, Building Phases with note tags
+  (interactive list), accordion (core Details), video, quote, awards, team and related projects.
+- Real Rhodes House images exported from the Figma for the seed (it uses placeholders for now).
+- Check the Figma colours against the prototype's (Blue #233F7C vs #253F7C, Slate #626C77 vs #5F6D78,
+  Off-white #F7F7F2 vs #F6F7F1).
+
 ## [0.0.4] - 2026-11-17
 
 Homepage prototype: logo and menu, from George's recordings (homeScroll, OpenMenu, OpenMenutop).

@@ -161,3 +161,20 @@ add_action('widgets_init', function () {
         'id' => 'sidebar-footer',
     ] + $config);
 });
+
+/**
+ * Web font. Chromatic Pro (design font) isn't web-licensed yet; Inter Tight is the stand-in.
+ * Swap for a self-hosted @font-face in resources/fonts when the licence arrives.
+ */
+add_action('wp_enqueue_scripts', function () {
+    wp_enqueue_style('sc-fonts', 'https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&display=swap', [], null);
+});
+
+add_filter('wp_resource_hints', function (array $urls, string $relation) {
+    if ($relation === 'preconnect') {
+        $urls[] = 'https://fonts.googleapis.com';
+        $urls[] = ['href' => 'https://fonts.gstatic.com', 'crossorigin'];
+    }
+
+    return $urls;
+}, 10, 2);

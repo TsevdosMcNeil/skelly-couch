@@ -1,0 +1,14 @@
+/*
+ * Image block with an aperture or comments: its <img> is wrapped in .figure__media (app/blocks.php),
+ * the positioning box for the extra layers.
+ */
+.figure__media { position: relative; overflow: clip; }
+.wp-block-image.is-resized .figure__media { width: fit-content; max-width: 100%; }
+.figure__media > .figure__img { display: block; }
+
+/* Grow comments dim the picture a little while they're open */
+.figure__media::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: rgb(0 0 0 / .18); opacity: 0; transition: opacity var(--t-hover) var(--ease-hover);
+}
+.figure__media:has(.comment--grow.is-open)::after { opacity: 1; }

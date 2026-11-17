@@ -1,4 +1,20 @@
 @import "tailwindcss" theme(static);
-@source "../../app/**/*.php";
-@source "../**/*.blade.php";
-@source "../**/*.js";
+@import "./base.css";
+
+/* Global */
+@import "./pcss/assets/globals.pcss" layer(base);
+
+/* Layout */
+@import "./pcss/layout/header.pcss" layer(components);
+@import "./pcss/layout/menu.pcss" layer(components);
+@import "./pcss/layout/footer.pcss" layer(components);
+
+/* Components */
+@import "./pcss/components/figure.pcss" layer(components);
+@import "./pcss/components/aperture.pcss" layer(components);
+@import "./pcss/components/comment.pcss" layer(components);
+
+/* Blocks — no layer: they override WordPress core block CSS, which is unlayered */
+@import "./pcss/blocks/project-hero.pcss";
+@import "./pcss/blocks/flow.pcss";
+@import "./pcss/blocks/chapter.pcss";

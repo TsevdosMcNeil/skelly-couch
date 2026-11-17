@@ -1,0 +1,56 @@
+/*
+ * Chapters and the sticky chapter bar.
+ * The bar is 78 tall at 1920 (20 + Large Body 38 + 20): project name at 180, chapter title at 970, "+" ending at 1740.
+ * position: sticky inside its own <section>, so the next chapter's bar pushes it off the top.
+ * Nothing above it may use overflow: hidden (that breaks sticky) — use overflow: clip where needed.
+ */
+.chapter { position: relative; }
+.chapter-bar { position: sticky; top: var(--wp-admin--admin-bar--height, 0px); z-index: 20; color: var(--color-black); }
+
+.chapter-bar__row {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: calc(var(--half) - var(--margin)) 1fr auto; align-items: center;
+  height: calc(78 * var(--u)); padding: 0 var(--margin);
+  background: var(--chapter-bg, var(--color-white)); transition: background-color var(--t-hover) var(--ease-hover);
+}
+.chapter.theme-white     { --chapter-bg: var(--color-white); }
+.chapter.theme-off-white { --chapter-bg: var(--color-off-white); }
+.chapter.theme-plaster   { --chapter-bg: var(--color-plaster); }
+.chapter.theme-blue      { --chapter-bg: var(--color-blue); }
+.chapter.theme-slate     { --chapter-bg: var(--color-slate); }
+.chapter:is(.theme-blue, .theme-slate) .chapter-bar { color: var(--color-white); }
+
+.chapter-bar__project, .chapter-bar__title { font: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* "+" button: big hit area, icon aligned to the content edge */
+.chapter-bar__toggle {
+  display: grid; place-items: center; width: calc(56 * var(--u)); height: calc(56 * var(--u)); margin-right: calc(-16 * var(--u));
+  background: none; border: 0; cursor: pointer; color: inherit;
+}
+.chapter-bar__toggle .plus-icon { transition: transform .45s var(--ease-scroll); }
+
+/* Hover on the "+" or open: the bar turns plaster (Figma: Menu 2 hover) */
+.chapter-bar:has(.chapter-bar__toggle:hover) .chapter-bar__row,
+.chapter-bar.is-open .chapter-bar__row { background: var(--color-plaster); }
+.chapter-bar.is-open .chapter-bar__toggle .plus-icon { transform: rotate(45deg); }
+
+/* Drop-down: plaster panel under the bar, list in the second half */
+.chapter-bar__menu {
+  position: absolute; left: 0; right: 0; top: 100%;
+  padding: calc(4 * var(--u)) var(--margin) var(--sp-30) var(--half);
+  background: var(--color-plaster);
+  font-size: var(--text-body); line-height: var(--lh-body);
+  clip-path: inset(0 0 100% 0); visibility: hidden;
+  transition: clip-path .45s var(--ease-scroll), visibility 0s .45s;
+}
+.chapter-bar.is-open .chapter-bar__menu { clip-path: inset(0 0 0 0); visibility: visible; transition-delay: 0s; }
+.chapter-bar__menu ul { list-style: none; display: grid; gap: calc(4 * var(--u)); }
+.chapter-bar__menu a { color: rgb(0 0 0 / .55); }
+.chapter-bar__menu a[aria-current], .chapter-bar__menu a:hover { color: var(--color-black); }
+
+@media (max-width: 820px) {
+  .chapter-bar__row { grid-template-columns: 1fr auto; height: 56px; }
+  .chapter-bar__project { display: none; }
+  .chapter-bar__toggle { width: 44px; height: 44px; margin-right: -12px; }
+  .chapter-bar__menu { padding-left: var(--margin); }
+}

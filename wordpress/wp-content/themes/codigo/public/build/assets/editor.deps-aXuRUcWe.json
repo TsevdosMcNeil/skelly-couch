@@ -1,0 +1,9 @@
+[
+  "wp-dom-ready",
+  "wp-hooks",
+  "wp-blocks",
+  "wp-compose",
+  "wp-element",
+  "wp-block-editor",
+  "wp-components"
+]

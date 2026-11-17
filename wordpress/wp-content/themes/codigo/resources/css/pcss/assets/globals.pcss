@@ -1,0 +1,47 @@
+/* Typography helpers, section colours, shared hovers. */
+
+.display { font-size: var(--text-display); line-height: var(--lh-display); letter-spacing: var(--ls-display); font-weight: 400; }
+.heading { font-size: var(--text-heading); line-height: var(--lh-heading); letter-spacing: var(--ls-heading); font-weight: 400; }
+.lead { font-size: var(--text-lead); line-height: var(--lh-lead); letter-spacing: var(--ls-lead); font-weight: 400; }
+
+/* Editor font sizes (theme.json presets) get the matching line height and tracking */
+.has-body-font-size    { font-size: var(--text-body);    line-height: var(--lh-body); }
+.has-lead-font-size    { font-size: var(--text-lead);    line-height: var(--lh-lead); letter-spacing: var(--ls-lead); }
+.has-heading-font-size { font-size: var(--text-heading); line-height: var(--lh-heading); letter-spacing: var(--ls-heading); }
+.has-display-font-size { font-size: var(--text-display); line-height: var(--lh-display); letter-spacing: var(--ls-display); }
+
+/* Section colours. data-surface tells the fixed menu icon which colour to use over it. */
+.theme-white     { background: var(--color-white);     color: var(--color-black); }
+.theme-off-white { background: var(--color-off-white); color: var(--color-black); }
+.theme-plaster   { background: var(--color-plaster);   color: var(--color-black); }
+.theme-blue      { background: var(--color-blue);      color: var(--color-white); }
+.theme-slate     { background: var(--color-slate);     color: var(--color-white); }
+
+/* "+ Find out more" (Figma: R1 Basic Button). Hover: the words lift and a line appears under them */
+.more { display: inline-flex; gap: .6em; align-items: baseline; font-size: var(--text-body); line-height: var(--lh-body); }
+.more::before { content: "+"; font-weight: 500; }
+.more > span { position: relative; display: inline-block; transition: transform .3s var(--ease); }
+.more > span::after {
+  content: ""; position: absolute; left: 0; right: 0; top: calc(100% + .3em);
+  height: max(1px, calc(2 * var(--u))); background: currentColor; opacity: 0; transform: translateY(.15em);
+  transition: opacity .3s var(--ease), transform .3s var(--ease);
+}
+a.more:hover > span, a:hover .more > span { transform: translateY(-.28em); }
+a.more:hover > span::after, a:hover .more > span::after { opacity: 1; transform: none; }
+
+/* Lists (menu, footer): hovering one link fades the others back */
+.hover-dim a { transition: opacity .3s ease; }
+.hover-dim:has(a:hover) a:not(:hover) { opacity: .4; }
+
+/* The S+C "+" (same proportions as the logo: 24.11 × 25.04, stroke 6.24), in currentColor */
+.plus-icon { display: block; width: calc(24 * var(--u)); height: calc(25 * var(--u)); }
+
+/* The logo pieces */
+.logo { display: block; font-weight: 500; letter-spacing: -.02em; line-height: .88; }
+.logo-mark { display: block; width: calc(92 * var(--u)); height: calc(106 * var(--u)); }
+.logo-word { font-size: calc(51 * var(--u)); text-transform: uppercase; }
+.logo-word span { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; animation-duration: 0s !important; }
+}

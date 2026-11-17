@@ -3,9 +3,6 @@
   "$schema": "https://schemas.wp.org/trunk/theme.json",
   "version": 3,
   "settings": {
-    "layout": {
-      "contentSize": "48rem"
-    },
     "background": {
       "backgroundImage": true
     },
@@ -16,7 +13,39 @@
       "defaultDuotone": false,
       "defaultGradients": false,
       "defaultPalette": false,
-      "duotone": []
+      "duotone": [],
+      "palette": [
+        {
+          "name": "White",
+          "slug": "white",
+          "color": "#ffffff"
+        },
+        {
+          "name": "Off-white",
+          "slug": "off-white",
+          "color": "#f7f7f2"
+        },
+        {
+          "name": "Plaster",
+          "slug": "plaster",
+          "color": "#d6d6c7"
+        },
+        {
+          "name": "Blue",
+          "slug": "blue",
+          "color": "#233f7c"
+        },
+        {
+          "name": "Slate",
+          "slug": "slate",
+          "color": "#626c77"
+        },
+        {
+          "name": "Black",
+          "slug": "black",
+          "color": "#000000"
+        }
+      ]
     },
     "custom": {
       "spacing": {},
@@ -27,11 +56,47 @@
     },
     "spacing": {
       "padding": true,
-      "units": ["px", "%", "em", "rem", "vw", "vh"]
+      "units": [
+        "px",
+        "%",
+        "em",
+        "rem",
+        "vw",
+        "vh"
+      ],
+      "blockGap": false
     },
     "typography": {
       "defaultFontSizes": false,
-      "customFontSize": false
+      "customFontSize": false,
+      "fluid": false,
+      "fontSizes": [
+        {
+          "name": "Body (18/22)",
+          "slug": "body",
+          "size": "var(--text-body)"
+        },
+        {
+          "name": "Large Body (34/38)",
+          "slug": "lead",
+          "size": "var(--text-lead)"
+        },
+        {
+          "name": "Heading (56/58)",
+          "slug": "heading",
+          "size": "var(--text-heading)"
+        },
+        {
+          "name": "Big Title (119)",
+          "slug": "display",
+          "size": "var(--text-display)"
+        }
+      ]
+    }
+  },
+  "styles": {
+    "spacing": {
+      "blockGap": "0px"
     }
   }
 }
