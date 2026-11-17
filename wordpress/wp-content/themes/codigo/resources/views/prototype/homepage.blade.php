@@ -78,36 +78,52 @@
   .hover-dim a{transition:opacity .3s ease}
   .hover-dim:has(a:hover) a:not(:hover){opacity:.4}
 
-  /* ---- Header ---- */
-  .site-header{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;justify-content:space-between;align-items:flex-start;
-    padding:var(--gutter);color:var(--sc-white);pointer-events:none;transition:color .3s}
+  /* ---- Header ----
+     Fixed S+C mark + menu icon. It sits BELOW the hero (z-index), so on the homepage the hero covers it
+     and it is revealed by the blue section's top edge as you scroll (Figma: homeScroll).
+     Sizes are the Figma's at 1920: the SVG is used at its native size (1 unit = 1px, 20px built-in padding);
+     the menu bars are as wide as the S (30) and as thick as the plus stroke (6.24). */
+  .site-header{position:fixed;inset:0 0 auto 0;z-index:5;color:var(--sc-white);pointer-events:none;transition:color .3s}
   .site-header > *{pointer-events:auto}
-  .site-header.is-blue{color:var(--sc-blue)}
+  .logo-mark{display:block;width:calc(92 * var(--u));height:calc(106 * var(--u))}
   .logo{display:block;font-weight:500;letter-spacing:-.02em;line-height:.88}
-  .logo-word{font-size:calc(44 * var(--u));text-transform:uppercase}
+  .logo-word{font-size:calc(51 * var(--u));text-transform:uppercase}
   .logo-word span{display:block}
-  .logo-mark{display:none;font-size:calc(46 * var(--u));line-height:.85;width:1.6em}
-  .logo-mark span{display:block}
-  .logo-mark span:last-child{margin-top:.08em}
-  .site-header.is-compact .logo-word{display:none}
-  .site-header.is-compact .logo-mark{display:block}
+  .site-header .logo{position:absolute;left:0;top:0}
 
-  .menu-btn{width:calc(34 * var(--u));height:calc(30 * var(--u));background:none;border:0;color:inherit;cursor:pointer;display:grid;place-items:center}
-  .menu-btn i{display:block;width:calc(30 * var(--u));height:calc(4 * var(--u));background:currentColor;box-shadow:0 calc(-10 * var(--u)) 0 currentColor,0 calc(10 * var(--u)) 0 currentColor;transition:box-shadow .2s}
-  .nav-open .menu-btn i{box-shadow:none}
+  .menu-btn{position:absolute;right:calc(var(--gutter) - 8 * var(--u));top:calc(22.5 * var(--u) - 8 * var(--u));
+    padding:calc(8 * var(--u));background:none;border:0;color:inherit;cursor:pointer}
+  .burger{position:relative;display:block;width:calc(30 * var(--u));height:calc(33.24 * var(--u))}
+  .burger i{position:absolute;left:0;width:100%;height:calc(6.24 * var(--u));background:currentColor;
+    transition:transform .35s cubic-bezier(.65, 0, .35, 1)}
+  .burger i:nth-child(1){top:0}
+  .burger i:nth-child(2){top:calc(13.5 * var(--u))}
+  .burger i:nth-child(3){top:calc(27 * var(--u))}
+  /* collapsed: the lower bars slide up into the top bar */
+  .burger.is-collapsed i:nth-child(2){transform:translateY(calc(-13.5 * var(--u)))}
+  .burger.is-collapsed i:nth-child(3){transform:translateY(calc(-27 * var(--u)))}
 
-  .nav-bar{position:fixed;inset:0 0 auto 0;z-index:40;background:var(--sc-blue);color:var(--sc-white);
-    height:calc(140 * var(--u));transform:translateY(-100%);transition:transform .35s ease}
-  .nav-open .nav-bar{transform:none}
-  .nav-open .site-header{color:var(--sc-white)}
-  .nav-open .site-header .logo-word{display:block}
-  .nav-open .site-header .logo-mark{display:none}
-  .nav-bar ul{list-style:none;display:flex;justify-content:space-between;width:calc(var(--col)*2 - 110 * var(--u));
-    margin-left:calc(var(--col)*2);padding-top:var(--gutter);font-size:var(--fs-body)}
-  .nav-search{position:absolute;right:var(--gutter);top:calc(var(--gutter) + 40 * var(--u));width:calc(30 * var(--u));height:calc(30 * var(--u));color:inherit;background:none;border:0;cursor:pointer}
+  /* ---- Menu bar (Figma: OpenMenu) ----
+     Wipes down from the top over everything; content stays in place and is revealed by the moving edge.
+     Inside: white wordmark (it covers the S+C mark), links, the menu icon collapsing into one bar, search. */
+  .nav-bar{position:fixed;inset:0 0 auto 0;z-index:100;height:calc(103 * var(--u));background:var(--sc-blue);color:var(--sc-white);
+    clip-path:inset(0 0 100% 0);pointer-events:none;transition:clip-path .45s cubic-bezier(.65, 0, .35, 1)}
+  .nav-open .nav-bar{clip-path:inset(0 0 0 0);pointer-events:auto}
+  .nav-bar .logo{position:absolute;left:var(--gutter);top:calc(20 * var(--u))}
+  .nav-bar ul{list-style:none;display:flex;justify-content:space-between;position:absolute;
+    left:calc(var(--col)*2);width:calc(780 * var(--u));top:calc(20 * var(--u));font-size:var(--fs-body);line-height:var(--lh-body)}
+  .nav-bar .burger{transition-delay:0s}
+  .nav-open .nav-bar .burger i{transition-delay:.1s}
+  .nav-search{position:absolute;right:var(--gutter);top:calc(60 * var(--u));width:calc(40 * var(--u));height:calc(40 * var(--u));
+    padding:0;color:inherit;background:none;border:0;cursor:pointer}
+  .nav-search svg{display:block;width:100%;height:100%}
+
+  /* Homepage only: wordmark + menu icon printed on the hero, so they scroll away with it */
+  .hero-head{position:absolute;inset:0 0 auto 0;z-index:2;color:var(--sc-blue)}
+  .hero-head .logo{position:absolute;left:var(--gutter);top:calc(20 * var(--u))}
 
   /* ---- Hero ---- */
-  .hero{position:relative;height:100vh;min-height:620px;background:#dfe4ee}
+  .hero{position:relative;z-index:6;height:100vh;min-height:620px;background:#dfe4ee}
   .hero h1{position:absolute;left:calc(var(--col)*2);top:var(--gutter);right:var(--gutter);color:var(--sc-blue);max-width:9.5em}
   .hero .project-link{position:absolute;left:calc(var(--col)*3);bottom:calc(var(--gutter)*1.5);color:var(--sc-blue)}
 
@@ -139,13 +155,17 @@
   .reveal[data-state]:not([data-state="done"]) .reveal__frame{display:block}
   .reveal[data-state]:not([data-state="done"]) .reveal__layer{will-change:clip-path}
   .reveal[data-state="idle"] .reveal__layer{clip-path:inset(50% 50% 50% 50%)}
-  .reveal__mark{position:absolute;color:var(--sc-white);font-weight:500;line-height:.75;
-    font-size:calc(var(--rv-m) * 1.25);opacity:0;transition:opacity .3s ease;will-change:transform}
+  /* The S, + and C are the pieces of the logo SVG; --rv-k = px per SVG unit, scaled to the window */
+  .reveal__mark{position:absolute;display:block;color:var(--sc-white);opacity:0;transition:opacity .3s ease;will-change:transform;
+    --rv-k:calc(var(--rv-m) * .0225)}
+  .reveal__mark--s{width:calc(30 * var(--rv-k));height:calc(40 * var(--rv-k))}
+  .reveal__mark--plus{width:calc(24.11 * var(--rv-k));height:calc(25.04 * var(--rv-k))}
+  .reveal__mark--c{width:calc(36 * var(--rv-k));height:calc(40 * var(--rv-k))}
   .reveal[data-state="mark"] .reveal__mark,.reveal[data-state="open"] .reveal__mark{opacity:1}
   .reveal.is-closing .reveal__mark{opacity:0;transition-duration:.4s}
-  .reveal__mark--s{left:calc(var(--rv-m) * -.38);top:calc(var(--rv-m) * -.55)}
-  .reveal__mark--plus{left:calc(var(--rv-m) * -.38);bottom:calc(var(--rv-m) * -.47)}
-  .reveal__mark--c{right:calc(var(--rv-m) * -.43);bottom:calc(var(--rv-m) * -.57)}
+  .reveal__mark--s{left:calc(var(--rv-m) * -.34);top:calc(var(--rv-m) * -.5)}
+  .reveal__mark--plus{left:calc(var(--rv-m) * -.3);bottom:calc(var(--rv-m) * -.34)}
+  .reveal__mark--c{right:calc(var(--rv-m) * -.4);bottom:calc(var(--rv-m) * -.45)}
 
   /* Page intro: hide the header and lock scrolling while the hero reveal plays */
   .site-header{transition:color .3s}
@@ -236,7 +256,7 @@
     .card{flex-basis:78vw}
     .news-head .more{position:static}
     .nav-bar{height:auto;padding:90px var(--gutter) 30px}
-    .nav-bar ul{flex-direction:column;gap:16px;margin:0;width:auto;font-size:22px}
+    .nav-bar ul{position:static;flex-direction:column;gap:16px;margin:0;width:auto;font-size:22px}
     .nav-search{top:auto;bottom:30px}
     .site-footer{grid-template-columns:1fr 1fr;gap:30px var(--gutter)}
     .site-footer .bottom{grid-column:span 1}
@@ -250,15 +270,13 @@
 <body>
 
 <!-- ===== Header (Blade: sections/header) ===== -->
-<header class="site-header is-blue" id="siteHeader">
-  <a class="logo" href="#top" aria-label="Skelly + Couch, home">
-    <span class="logo-word"><span>Skelly</span><span>+Couch</span></span>
-    <span class="logo-mark" aria-hidden="true"><span>S</span><span>+C</span></span>
-  </a>
-  <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="navBar"><i></i><span class="sr-only">Menu</span></button>
+<header class="site-header" id="siteHeader">
+  <a class="logo" href="#top" aria-label="Skelly + Couch, home"><svg class="logo-mark" viewBox="0 0 92 106" fill="currentColor" aria-hidden="true"><path d="M47.3414 40.1956C45.1133 38.4461 41.943 37.3679 37.8305 36.9635L36.2467 36.797C33.1901 36.4641 30.9701 35.8113 29.5948 34.8362C28.2168 33.861 27.5291 32.5608 27.5291 30.9408C27.5291 29.3208 28.2736 28.1501 29.7654 27.2093C31.2544 26.2711 33.1495 25.8007 35.4535 25.8007C37.7574 25.8007 39.7825 26.3531 41.1984 27.4577C42.6144 28.565 43.3968 30.074 43.5484 31.99H50C49.6995 28.343 48.3025 25.4334 45.8117 23.2585C43.321 21.0862 39.8502 20 35.3966 20C32.6406 20 30.1688 20.4889 27.9812 21.4641C25.791 22.4392 24.0745 23.7764 22.8292 25.4704C21.5838 27.1644 20.9611 29.0803 20.9611 31.2156C20.9611 34.5322 22.0386 37.0825 24.1883 38.8689C26.3406 40.6554 29.3593 41.7521 33.2443 42.1564L35.1692 42.3784C35.865 42.4498 36.5175 42.5344 37.1266 42.6321H49.4125C48.8873 41.6808 48.1969 40.8668 47.3414 40.1956ZM26.7927 46.8525H20C20.1868 49.4688 20.9232 51.7627 22.2065 53.7315C23.4898 55.703 25.2739 57.241 27.5562 58.3457C29.7816 59.4239 32.3779 59.9736 35.3398 60V54.1993C32.8057 54.1623 30.805 53.491 29.3403 52.1855C27.8296 50.8404 26.9795 49.0645 26.7927 46.8525Z"/><path d="M85.1432 91.2945C84.5721 94.134 83.3423 96.3074 81.4566 97.8197C79.5709 99.3294 77.1606 100.086 74.2282 100.086C70.6099 100.086 67.8005 98.8508 65.8 96.3814C63.7996 93.912 62.8021 90.4484 62.8021 85.9881C62.8021 85.7502 62.8048 85.5148 62.8103 85.2822H56.0082C56.0027 85.5148 56 85.7502 56 85.9881C56 90.0783 56.7433 93.6264 58.23 96.6299C59.714 99.6334 61.8374 101.947 64.6003 103.568C67.3632 105.188 70.5716 106 74.2282 106C79.1036 106 83.1127 104.702 86.2555 102.103C89.3983 99.5039 91.3141 95.9028 92 91.2945H85.1432ZM84.9711 80.0181H91.9426C91.0654 75.5948 89.084 72.1498 85.9986 69.6804C83.1619 67.4119 79.6174 66.1851 75.3651 66V71.9383C77.647 72.1048 79.5928 72.8002 81.1997 74.0217C83.0663 75.4388 84.3234 77.4403 84.9711 80.0181Z"/><path d="M35.1931 76.1609H28.9553V101.2H35.1931V76.1609Z"/><path d="M44.1307 85.0984H20.0178V91.3362H44.1307V85.0984Z"/></svg></a>
+  <button class="menu-btn" data-menu-toggle aria-expanded="false" aria-controls="navBar"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span class="sr-only">Open menu</span></button>
 </header>
 
 <nav class="nav-bar" id="navBar" aria-label="Primary">
+  <a class="logo" href="#top" aria-label="Skelly + Couch, home"><span class="logo-word"><span>Skelly</span><span>+Couch</span></span></a>
   <ul class="hover-dim">
     <li><a href="#">Work</a></li>
     <li><a href="#">Practice</a></li>
@@ -266,26 +284,29 @@
     <li><a href="#news">News</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
-  <button class="nav-search" aria-label="Search">
-    <svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="3.2"><circle cx="17" cy="12" r="9"/><path d="M10.5 18.5 3 26"/></svg>
-  </button>
+  <button class="menu-btn" data-menu-close><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span class="sr-only">Close menu</span></button>
+  <button class="nav-search" aria-label="Search"><svg viewBox="0 0 30 30" fill="none" stroke="currentColor" stroke-width="4"><circle cx="18" cy="12" r="9"/><path d="M11.5 18.5 3.5 26.5"/></svg></button>
 </nav>
 
 <main id="top">
 
   <!-- ===== Layout: hero (ACF: hero_photo, hero_xray, headline, project) ===== -->
   <section class="hero reveal" id="hero" data-theme="blue"
-           data-reveal data-reveal-trigger="load" data-reveal-pop="1100" data-reveal-ghost="#siteHeader" data-reveal-rect="0.47 0.458 0.085 0.126">
+           data-reveal data-reveal-trigger="load" data-reveal-pop="1100"  data-reveal-rect="0.47 0.458 0.085 0.126">
     <div class="reveal__base">
       <img src="{{ $img('alfriston.jpg') }}" alt="">
     </div>
     <div class="reveal__frame" aria-hidden="true">
-      <span class="reveal__mark reveal__mark--s">S</span>
-      <span class="reveal__mark reveal__mark--plus">+</span>
-      <span class="reveal__mark reveal__mark--c">C</span>
+      <svg class="reveal__mark reveal__mark--s" viewBox="20 20 30 40" fill="currentColor"><path d="M47.3414 40.1956C45.1133 38.4461 41.943 37.3679 37.8305 36.9635L36.2467 36.797C33.1901 36.4641 30.9701 35.8113 29.5948 34.8362C28.2168 33.861 27.5291 32.5608 27.5291 30.9408C27.5291 29.3208 28.2736 28.1501 29.7654 27.2093C31.2544 26.2711 33.1495 25.8007 35.4535 25.8007C37.7574 25.8007 39.7825 26.3531 41.1984 27.4577C42.6144 28.565 43.3968 30.074 43.5484 31.99H50C49.6995 28.343 48.3025 25.4334 45.8117 23.2585C43.321 21.0862 39.8502 20 35.3966 20C32.6406 20 30.1688 20.4889 27.9812 21.4641C25.791 22.4392 24.0745 23.7764 22.8292 25.4704C21.5838 27.1644 20.9611 29.0803 20.9611 31.2156C20.9611 34.5322 22.0386 37.0825 24.1883 38.8689C26.3406 40.6554 29.3593 41.7521 33.2443 42.1564L35.1692 42.3784C35.865 42.4498 36.5175 42.5344 37.1266 42.6321H49.4125C48.8873 41.6808 48.1969 40.8668 47.3414 40.1956ZM26.7927 46.8525H20C20.1868 49.4688 20.9232 51.7627 22.2065 53.7315C23.4898 55.703 25.2739 57.241 27.5562 58.3457C29.7816 59.4239 32.3779 59.9736 35.3398 60V54.1993C32.8057 54.1623 30.805 53.491 29.3403 52.1855C27.8296 50.8404 26.9795 49.0645 26.7927 46.8525Z"/></svg>
+      <svg class="reveal__mark reveal__mark--plus" viewBox="20.0178 76.1609 24.1129 25.0391" fill="currentColor"><path d="M35.1931 76.1609H28.9553V101.2H35.1931V76.1609Z"/><path d="M44.1307 85.0984H20.0178V91.3362H44.1307V85.0984Z"/></svg>
+      <svg class="reveal__mark reveal__mark--c" viewBox="56 66 36 40" fill="currentColor"><path d="M85.1432 91.2945C84.5721 94.134 83.3423 96.3074 81.4566 97.8197C79.5709 99.3294 77.1606 100.086 74.2282 100.086C70.6099 100.086 67.8005 98.8508 65.8 96.3814C63.7996 93.912 62.8021 90.4484 62.8021 85.9881C62.8021 85.7502 62.8048 85.5148 62.8103 85.2822H56.0082C56.0027 85.5148 56 85.7502 56 85.9881C56 90.0783 56.7433 93.6264 58.23 96.6299C59.714 99.6334 61.8374 101.947 64.6003 103.568C67.3632 105.188 70.5716 106 74.2282 106C79.1036 106 83.1127 104.702 86.2555 102.103C89.3983 99.5039 91.3141 95.9028 92 91.2945H85.1432ZM84.9711 80.0181H91.9426C91.0654 75.5948 89.084 72.1498 85.9986 69.6804C83.1619 67.4119 79.6174 66.1851 75.3651 66V71.9383C77.647 72.1048 79.5928 72.8002 81.1997 74.0217C83.0663 75.4388 84.3234 77.4403 84.9711 80.0181Z"/></svg>
     </div>
     <div class="reveal__layer">
       <img src="{{ $img('hero-xray.jpg') }}" alt="Alfriston School Swimming Pool, building services x-ray">
+      <div class="hero-head">
+        <a class="logo" href="#top" aria-label="Skelly + Couch, home"><span class="logo-word"><span>Skelly</span><span>+Couch</span></span></a>
+        <button class="menu-btn" data-menu-toggle aria-expanded="false" aria-controls="navBar"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span><span class="sr-only">Open menu</span></button>
+      </div>
       <h1 class="display" data-reveal-lift="4">Bringing life to buildings and buildings to life</h1>
       <a class="project-link" href="#">
         <span class="caption">Alfriston Swimming Pool</span><br>
@@ -585,27 +606,30 @@
   // Other reveals on the page (e.g. inner-page images): <div class="reveal" data-reveal data-reveal-trigger="inview">
   document.querySelectorAll('[data-reveal]').forEach(el => { if (el !== hero) Reveal.init(el); });
 
-  // Menu toggle
-  const menuBtn = document.getElementById('menuBtn');
-  menuBtn.addEventListener('click', () => {
-    const open = document.body.classList.toggle('nav-open');
-    menuBtn.setAttribute('aria-expanded', open);
-  });
-  document.querySelectorAll('.nav-bar a').forEach(a => a.addEventListener('click', () => {
-    document.body.classList.remove('nav-open'); menuBtn.setAttribute('aria-expanded', false);
-  }));
+  // Menu: the bar wipes down; its own menu icon collapses into one bar (and expands again on close)
+  const navBar = document.getElementById('navBar');
+  const navBurger = navBar.querySelector('.burger');
+  const toggles = [...document.querySelectorAll('[data-menu-toggle]')];
+  function setMenu(open) {
+    document.body.classList.toggle('nav-open', open);
+    navBurger.classList.toggle('is-collapsed', open);
+    toggles.forEach(t => t.setAttribute('aria-expanded', open));
+    if (open) navBar.querySelector('[data-menu-close]').focus({ preventScroll: true });
+  }
+  toggles.forEach(t => t.addEventListener('click', () => setMenu(true)));
+  navBar.querySelector('[data-menu-close]').addEventListener('click', () => setMenu(false));
+  navBar.querySelectorAll('ul a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+  addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
 
-  // Header: wordmark at top, S+C mark once scrolled; colour follows the section underneath
+  // Header: colour follows the section underneath (the hero simply covers it)
   const themed = [...document.querySelectorAll('[data-theme]')];
   function updateHeader(){
-    header.classList.toggle('is-compact', scrollY > 40);
     const probe = 30;
     let theme = 'light';
     for (const el of themed){
       const r = el.getBoundingClientRect();
       if (r.top <= probe && r.bottom > probe) theme = el.dataset.theme;
     }
-    header.classList.toggle('is-blue', theme === 'blue');
     header.style.color = theme === 'dark' ? 'var(--sc-black)' : '';
   }
   addEventListener('scroll', updateHeader, {passive:true});

@@ -8,6 +8,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
+## [0.0.4] - 2026-11-17
+
+Homepage prototype: logo and menu, from George's recordings (homeScroll, OpenMenu, OpenMenutop).
+
+### Changed
+- **Logo:** the S+C mark is now the SVG exported from Figma, used at its native size at 1920
+  (1 unit = 1px, with its own 20px padding). The S, + and C in the intro animation use the same SVG pieces.
+- **Header on the homepage:** the "SKELLY +COUCH" wordmark and menu icon are printed on the hero and scroll away with it.
+  The fixed S+C mark and menu icon sit behind the hero: they are revealed by the blue section's top edge as you scroll
+  down, and covered again when you scroll back up.
+- **Menu icon:** bars as wide as the S (30px) and as thick as the plus stroke (6.24px), 20px from the right.
+- **Menu:** a 103px blue bar wipes down from the top. It holds the white wordmark (covering the S+C mark), the links
+  in one row from the middle of the screen, and a search icon under the menu icon. As it opens, the menu icon's
+  lower bars slide up into the top bar; closing reverses both. Escape also closes it.
+
+### Removed
+- The hero no longer copies the site header during the intro (`data-reveal-ghost`): the header is now part of the hero.
+  The option is still available on the reveal component.
+
+### Pending
+- Wordmark as SVG (the "SKELLY +COUCH" at the top of the homepage and in the menu is still type).
+- George's logo interaction (shapes shifting to line up with the wordmark).
+
 ## [0.0.3] - 2026-11-17
 
 Homepage prototype: first round of design feedback (George).
