@@ -224,12 +224,18 @@ add_filter('render_block_core/image', function (string $html, array $block) {
         'trigger' => ($aperture['trigger'] ?? 'click') === 'hover' ? 'hover' : 'click',
     ])) : '';
 
+    // "Darken the image" (%), comments only; empty = the CSS default (18%)
+    $darken = $comments && isset($attrs['commentsDarken']) && is_numeric($attrs['commentsDarken'])
+        ? ' style="--darken: '.(max(0, min(100, (float) $attrs['commentsDarken'])) / 100).'"'
+        : '';
+
     $open = sprintf(
-        '<div class="figure__media%s%s"%s%s>',
+        '<div class="figure__media%s%s"%s%s%s>',
         $hasAperture ? ' has-aperture' : '',
         $comments ? ' has-comments' : '',
         $hasAperture ? " data-aperture=\"{$config}\"" : '',
-        $comments ? ' data-comments' : ''
+        $comments ? ' data-comments' : '',
+        $darken
     );
 
     // Wrap the <img> (only the first one: the block's image)
@@ -262,12 +268,31 @@ function contrast_text(string $hex): string
 }
 
 /**
+ * A colour saved by the editor's colour pickers: a hex value, or null.
+ */
+function hex_color(mixed $value): ?string
+{
+    return is_string($value) && preg_match('/^#[0-9a-f]{3}([0-9a-f]{3})?$/i', $value) ? $value : null;
+}
+
+/**
+ * Inline CSS for the aperture "+": its colour (palette hex; 'white' / 'blue' were saved before the colour picker).
+ */
+function aperture_plus_style(array $aperture): string
+{
+    $plus = $aperture['plus'] ?? null;
+    $plus = ['white' => '#ffffff', 'blue' => '#233f7c'][$plus] ?? hex_color($plus);
+
+    return $plus ? "--plus-color: {$plus}" : '';
+}
+
+/**
  * Inline CSS variables for one comment "+": position, "+" padding and colours.
  */
 function comment_style(array $comment): string
 {
     $pct = fn ($v) => max(0, min(100, (float) $v)).'%';
-    $color = fn ($v) => is_string($v) && preg_match('/^#[0-9a-f]{3}([0-9a-f]{3})?$/i', $v) ? $v : null;
+    $color = fn ($v) => hex_color($v);
 
     $vars = [
         '--x' => $pct($comment['x'] ?? 50),

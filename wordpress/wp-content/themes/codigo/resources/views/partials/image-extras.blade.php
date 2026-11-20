@@ -11,7 +11,7 @@
       {!! wp_get_attachment_image($image, $size, false, ['class' => 'aperture__img', 'sizes' => $sizes, 'loading' => 'lazy', 'alt' => '']) !!}
     </div>
   @endif
-  <button class="aperture__plus aperture__plus--{{ ($aperture['plus'] ?? 'white') === 'blue' ? 'blue' : 'white' }}" type="button" aria-expanded="false">
+  <button class="aperture__plus" type="button" aria-expanded="false" @if ($plusStyle = \App\aperture_plus_style($aperture)) style="{{ $plusStyle }}" @endif>
     @include('partials.plus')
     <span class="sr-only">{{ get_post_meta((int) $aperture['id'], '_wp_attachment_image_alt', true) ?: __('Show the other view', 'sage') }}</span>
   </button>

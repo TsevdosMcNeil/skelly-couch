@@ -16,11 +16,13 @@ export function callback(settings, blockName) {
     ...settings,
     attributes: {
       ...settings.attributes,
-      // { enabled, id, url, trigger: 'click'|'hover', plus: 'white'|'blue', x, y, size } — x/y/size in % of the image
+      // { enabled, id, url, trigger: 'click'|'hover', plus: hex ('white'|'blue' before 0.0.8), x, y, size } — x/y/size in % of the image
       aperture: { type: 'object', default: {} },
       // [{ x, y, anchor: 'top-left'|…, style: 'magnify'|'grow', text, plusInset, plusColor, noteColor }]
       // x/y = the note's corner (%); plusInset = px at 1920; colours = hex
       comments: { type: 'array', default: [] },
+      // How much the picture darkens while the comments are in use, 0–100 (%). Empty = 18.
+      commentsDarken: { type: 'number' },
     },
   };
 }

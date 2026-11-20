@@ -8,6 +8,32 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
+## [0.0.9] - 2026-11-20
+
+### Added
+- **Comments "+": "Darken the image (%)"** in the Image block's Comments panel (0 = none, 100 = black, default 18%).
+  Magnifying-glass comments now darken the image while it's hovered; growing notes darken it while a note is open,
+  both using this setting.
+
+## [0.0.8] - 2026-11-20
+
+Image block aperture "+": adjustments from Pablo's review (Aperture+.png, ImageMouse recording).
+
+### Changed
+- **Aperture "+" colour** is a colour picker with the theme palette (like the comment "+" colours) instead of a
+  White / Blue list. Empty = white. Images saved with "White" or "Blue" keep their colour.
+- **Click aperture:** once the second image is open, the window (now showing the original picture) keeps following
+  the cursor. Clicking again, or leaving the image, shrinks the second image back into the window wherever it is,
+  and the window carries on following the cursor.
+
+## [0.0.7] - 2026-11-20
+
+### Changed
+- The scrollbar is hidden across the whole site, so `100vw` (and `--u`) always equals the window width.
+- No horizontal scroll: `overflow-x: clip` on `html` and `body` (not `hidden`, which would stop the sticky
+  Contents block and chapter bars from sticking).
+
+
 ## [0.0.6] - 2026-11-20
 
 Project page, second part: the Contents block (Figma "Contents", between the introduction and the first chapter),

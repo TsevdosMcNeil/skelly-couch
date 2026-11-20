@@ -20,7 +20,6 @@
   visibility: hidden;
 }
 .is-aperture-ready .aperture__plus { visibility: visible; }
-.aperture__plus--white { color: var(--color-white); }
-.aperture__plus--blue { color: var(--color-blue); }
+.aperture__plus { color: var(--plus-color, var(--color-white)); }   /* --plus-color: the editor's “+” colour */
 .aperture__plus .plus-icon { width: calc(22 * var(--u)); height: calc(23 * var(--u)); }
 .is-aperture-open .aperture__plus { opacity: 0; }

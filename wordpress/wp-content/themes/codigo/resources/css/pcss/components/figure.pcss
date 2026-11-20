@@ -6,9 +6,15 @@
 .wp-block-image.is-resized .figure__media { width: fit-content; max-width: 100%; }
 .figure__media > .figure__img { display: block; }
 
-/* Grow comments dim the picture a little while they're open */
+/*
+ * Comments darken the picture: magnifying-glass comments while the image is hovered, growing comments while a
+ * note is open. --darken = the Image block's "Darken the image" (0–1, set in app/blocks.php), 18% by default.
+ * The "+"s, zoomed squares and notes sit above the dark layer.
+ */
 .figure__media::after {
   content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  background: rgb(0 0 0 / .18); opacity: 0; transition: opacity var(--t-hover) var(--ease-hover);
+  background: rgb(0 0 0 / var(--darken, .18)); opacity: 0; transition: opacity var(--t-hover) var(--ease-hover);
 }
-.figure__media:has(.comment--grow.is-open)::after { opacity: 1; }
+.figure__media:has(.comment--grow.is-open)::after,
+.figure__media:has(.comment--magnify):hover::after,
+.figure__media:has(.comment--magnify.is-open)::after { opacity: 1; }

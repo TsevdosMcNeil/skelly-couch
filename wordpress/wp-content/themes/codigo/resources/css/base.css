@@ -77,6 +77,30 @@
     background: var(--color-white);
     -webkit-font-smoothing: antialiased;
   }
+
+  html, body {
+    /* overflow-x: hidden; */
+    overflow-x: clip;
+    /* scrollbar-gutter: stable; */
+  }
+  /*
+  * Hide the scrollbar across the whole site.
+  * On devices with always-visible scrollbars, it takes up layout width, so the
+  * viewport changes size whenever it appears or disappears. On the home page,
+  * removing .overflow-hidden at the end of the intro (homeIntro.js) brought it
+  * back, shifting the intro logo off the real header logo and making the hero
+  * jump. Hiding it everywhere also keeps the width consistent between pages and
+  * when the menu locks scrolling.
+  */
+  html {
+    scrollbar-width: none;
+  }
+
+  /* Fallback for older Safari, which doesn't support scrollbar-width */
+  html::-webkit-scrollbar {
+    display: none;
+  }
+
   img { display: block; max-width: 100%; height: auto; }
   a { color: inherit; text-decoration: none; }
   button { font: inherit; color: inherit; }

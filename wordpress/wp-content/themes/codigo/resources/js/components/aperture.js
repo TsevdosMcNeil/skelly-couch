@@ -12,7 +12,9 @@ import { reducedMotion } from '../utils/motion.js';
  *
  * x / y / size are % of the image (size = window width as % of the image width; the window is square).
  * trigger "click": the window follows the cursor over the image; a click grows the second image from
- *                  wherever the window is; another click (or leaving the image) shrinks it back.
+ *                  wherever the window is. While it's open the window (now showing the original picture)
+ *                  keeps following the cursor; another click (or leaving the image) shrinks the second image
+ *                  back into the window wherever it is.
  * trigger "hover": entering the image grows it from the window's resting place; leaving shrinks it back.
  */
 const GROW = { duration: 1000, easing: 'cubic-bezier(.8, 0, .2, 1)' };   // Figma "smart animate" curve
@@ -32,7 +34,7 @@ export function initAperture(media) {
   let rest = { x: 0, y: 0 };               // window top-left at rest
   const pos = { x: 0, y: 0 };              // window top-left now
   const target = { x: 0, y: 0 };           // where it's heading
-  let open = false, anim = null, raf = 0, opened = null;
+  let open = false, shrinking = false, anim = null, raf = 0;
 
   const clamp = (v, max) => Math.min(Math.max(v, 0), Math.max(max, 0));
   const inset = (r) => `inset(${r.y}px ${W - r.x - S}px ${H - r.y - S}px ${r.x}px)`;
@@ -48,6 +50,7 @@ export function initAperture(media) {
 
   function paint() {
     if (!open && !anim) layer.style.clipPath = inset(pos);
+    if (open) ghost.style.clipPath = inset(pos);   // the window, now showing the original, follows too
     media.style.setProperty('--ax', `${pos.x}px`);
     media.style.setProperty('--ay', `${pos.y + S}px`);
   }
@@ -67,14 +70,13 @@ export function initAperture(media) {
   function grow() {
     if (open) return;
     open = true;
-    cancelAnimationFrame(raf); raf = 0;
-    opened = { ...pos };
+    shrinking = false;   // a click during the shrink grows it again from here
     media.classList.add('is-aperture-open');
     plus.setAttribute('aria-expanded', 'true');
-    ghost.style.clipPath = inset(opened);
+    ghost.style.clipPath = inset(pos);
     anim?.cancel();
     const o = { ...GROW, duration: reducedMotion() ? 0 : GROW.duration, fill: 'forwards' };
-    anim = layer.animate([{ clipPath: inset(opened) }, { clipPath: full }], o);
+    anim = layer.animate([{ clipPath: inset(pos) }, { clipPath: full }], o);
     // the original shows through the window once the new image has mostly grown past it
     ghost.animate([{ opacity: 0 }, { opacity: 0, offset: 0.35 }, { opacity: 1 }], o);
   }
@@ -82,9 +84,11 @@ export function initAperture(media) {
   function shrink() {
     if (!open) return;
     open = false;
+    shrinking = true;
+    cancelAnimationFrame(raf); raf = 0;   // the window holds still while the image shrinks into it
     media.classList.remove('is-aperture-open');
     plus.setAttribute('aria-expanded', 'false');
-    const back = opened || rest;
+    const back = { ...pos };
     const o = { ...GROW, duration: reducedMotion() ? 0 : GROW.duration * 0.8, fill: 'forwards' };
     anim?.cancel();
     ghost.animate([{ opacity: 1 }, { opacity: 0, offset: 0.4 }, { opacity: 0 }], o);
@@ -92,6 +96,7 @@ export function initAperture(media) {
     a.finished.then(() => {
       if (anim !== a) return;
       anim = null;
+      shrinking = false;
       a.cancel();
       Object.assign(pos, back);
       if (clickMode) chase();   // drift back to the cursor / resting place
@@ -104,11 +109,11 @@ export function initAperture(media) {
   if (clickMode) {
     media.classList.add('is-aperture-click');
     media.addEventListener('pointermove', (e) => {
-      if (e.pointerType !== 'mouse' || open) return;
+      if (e.pointerType !== 'mouse') return;
       const r = media.getBoundingClientRect();
       target.x = clamp(e.clientX - r.left - S / 2, W - S);
       target.y = clamp(e.clientY - r.top - S / 2, H - S);
-      chase();
+      if (!shrinking) chase();   // after shrinking it catches up (see shrink)
     });
     media.addEventListener('pointerleave', () => {
       Object.assign(target, rest);

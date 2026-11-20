@@ -59,6 +59,13 @@ function useImageBox(clientId, active, deps) {
   return box;
 }
 
+/** Aperture "+" colour: a hex from the palette; 'white' / 'blue' are the values saved before the colour picker. */
+/** Default for "Darken the image" (%): the dimming in the CommentPlus recordings. */
+const DARKEN = 18;
+
+const LEGACY_PLUS = { white: '#ffffff', blue: '#233f7c' };
+export const aperturePlusColor = (plus) => LEGACY_PLUS[plus] || plus || undefined;
+
 const plusSvg = (color) => h('svg', { viewBox: '0 0 24 25', width: 14, height: 15, fill: color, 'aria-hidden': true },
   h('path', { d: 'M15.2 0H8.9v25h6.3z' }), h('path', { d: 'M24 8.9H0v6.3h24z' }));
 
@@ -86,7 +93,7 @@ function Preview({ box, aperture, comments, placing, onPlace }) {
     children.push(h('div', {
       key: 'aperture-plus',
       style: { position: 'absolute', left: left - 7, top: top + S - 7, lineHeight: 0 },
-    }, plusSvg(aperture.plus === 'blue' ? '#233f7c' : '#fff')));
+    }, plusSvg(aperturePlusColor(aperture.plus) || '#fff')));
   }
 
   // 1 design px (at 1920) in the editor canvas
@@ -152,7 +159,7 @@ export function ImageExtras({ clientId, attributes, setAttributes, isSelected })
   useEffect(() => { if (!isSelected) setPlacing(null); }, [isSelected]);
 
   const setAperture = (patch) => {
-    const next = { trigger: 'click', plus: 'white', x: 40, y: 40, size: 10, ...aperture, ...patch };
+    const next = { trigger: 'click', x: 40, y: 40, size: 10, ...aperture, ...patch };
     const update = { aperture: next };
     // A click aperture and the "Expand on click" lightbox would both react to the same click
     if (next.enabled && next.trigger === 'click' && attributes.lightbox?.enabled) {
@@ -207,13 +214,11 @@ export function ImageExtras({ clientId, attributes, setAttributes, isSelected })
       }),
       (aperture.trigger || 'click') === 'click' && h(Notice, { status: 'info', isDismissible: false },
         '“Expand on click” is switched off for this image: the click opens the aperture.'),
-      h(SelectControl, {
-        label: '“+” colour',
-        value: aperture.plus || 'white',
-        options: [{ label: 'White', value: 'white' }, { label: 'Blue', value: 'blue' }],
-        onChange: (plus) => setAperture({ plus }),
-        __nextHasNoMarginBottom: true, __next40pxDefaultSize: true,
-      }),
+      h(BaseControl, { label: '“+” colour', help: 'Empty = white.', __nextHasNoMarginBottom: true },
+        h(ColorPalette, {
+          colors: palette || [], value: aperturePlusColor(aperture.plus),
+          onChange: (plus) => setAperture({ plus: plus || undefined }), enableAlpha: false, clearable: true,
+        })),
       h(RangeControl, {
         label: 'Window size (% of the image width)', min: 4, max: 40, step: 0.5,
         value: aperture.size ?? 10, onChange: (size) => setAperture({ size }),
@@ -227,6 +232,14 @@ export function ImageExtras({ clientId, attributes, setAttributes, isSelected })
 
   const commentsPanel = h(PanelBody, { title: 'Comments “+”', initialOpen: comments.length > 0 },
     h('p', { style: { marginTop: 0 } }, 'Fixed “+” markers with a short note. Magnifying glass: a magnified square, then a slate note. Growing: a plaster note grows out of the “+”.'),
+    h(RangeControl, {
+      label: 'Darken the image (%)',
+      help: 'Magnifying glass: while the image is hovered. Growing: while a note is open. 0 = no darkening, 100 = black.',
+      min: 0, max: 100, step: 1, value: attributes.commentsDarken ?? DARKEN,
+      onChange: (commentsDarken) => setAttributes({ commentsDarken: commentsDarken ?? undefined }),
+      allowReset: true, resetFallbackValue: DARKEN,
+      __nextHasNoMarginBottom: true, __next40pxDefaultSize: true,
+    }),
     comments.map((c, i) => h('div', { key: i, style: { borderTop: '1px solid #ddd', padding: '12px 0' } },
       h('strong', { style: { display: 'block', marginBottom: 8 } }, `Comment ${i + 1}`),
       h(TextareaControl, { label: 'Note', rows: 2, value: c.text || '', onChange: (text) => setComment(i, { text }), __nextHasNoMarginBottom: true }),
