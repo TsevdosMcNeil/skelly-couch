@@ -1,4 +1,4 @@
-import { scrollToY } from '../utils/motion.js';
+import { scrollToElement } from '../utils/motion.js';
 
 /**
  * Chapter bar "+" menu: opens a drop-down with the project's sections; links scroll there with the
@@ -27,8 +27,7 @@ export function initChapterNav(bar) {
     if (!target) return;
     e.preventDefault();
     set(false);
-    const adminBar = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--wp-admin--admin-bar--height')) || 0;
-    scrollToY(target.getBoundingClientRect().top + scrollY - adminBar);
+    scrollToElement(target);
     history.replaceState(null, '', a.hash);
   }));
 

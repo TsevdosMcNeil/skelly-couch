@@ -63,6 +63,12 @@ class Chapter extends Block
             ->addText('short_title', [
                 'label' => 'Short title',
                 'instructions' => 'Optional. Used in the “+” menu and the Contents list.',
+            ])
+            ->addImage('highlight', [
+                'label' => 'Highlight in Contents',
+                'instructions' => 'Optional. Shown over the Contents image while this chapter is hovered in the list. Use the same size and framing as that image (e.g. the exploded view with this part in grey). The Contents block can replace it.',
+                'return_format' => 'id',
+                'preview_size' => 'medium',
             ]);
 
         return $fields->build();

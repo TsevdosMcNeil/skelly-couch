@@ -54,6 +54,16 @@ const IMAGES = [
     'hall.jpg' => 'Convening Hall',
     'aerial.jpg' => 'Aerial view of Rhodes House',
     'aerial-before.jpg' => 'Aerial view during construction',
+    // Contents: the exploded view, its aperture (aerial photo) and one highlight per chapter (same size and framing)
+    'contents.jpg' => 'Exploded view of Rhodes House',
+    'contents-aerial.jpg' => 'Aerial view of Rhodes House',
+    'contents-offices.jpg' => 'Exploded view: Below Ground Offices',
+    'contents-stairwells.jpg' => 'Exploded view: Stairwells, Basements, and Lightwells',
+    'contents-phasing.jpg' => 'Exploded view: Listed Building Phasing',
+    'contents-pavilion.jpg' => 'Exploded view: Glass Pavilion',
+    'contents-east-wing.jpg' => 'Exploded view: East Wing',
+    'contents-courtyard.jpg' => 'Exploded view: Residential Sunken Courtyard',
+    'contents-hall.jpg' => 'Exploded view: Convening Hall',
 ];
 
 // ---------------------------------------------------------------------------
@@ -225,9 +235,23 @@ function section(array $inner, string $color = 'blue', string $navLabel = ''): a
     return acf_block('acf/section', ['nav_label' => $navLabel], ['backgroundColor' => $color], $inner);
 }
 
-function chapter(string $title, array $inner, string $color = 'white', string $short = ''): array
+/** $highlight: file in SEED_DIR for "Highlight in Contents" (skipped if it isn't there). */
+function chapter(string $title, array $inner, string $color = 'white', string $short = '', string $highlight = ''): array
 {
-    return acf_block('acf/chapter', ['title' => $title, 'short_title' => $short], ['backgroundColor' => $color], $inner);
+    $values = ['title' => $title, 'short_title' => $short];
+    if ($highlight !== '' && has_image($highlight)) {
+        $values['highlight'] = seed_image($highlight);
+    }
+
+    return acf_block('acf/chapter', $values, ['backgroundColor' => $color], $inner);
+}
+
+/** Contents: the chapter list next to the exploded view (aperture: aerial photo). */
+function contents(): array
+{
+    return acf_block('acf/contents', ['heading' => 'Contents'], ['backgroundColor' => 'off-white', 'panelColor' => 'plaster'], [
+        figure('contents.jpg', '', ['image' => 'contents-aerial.jpg', 'plus' => 'blue', 'x' => 25.6, 'y' => 40.7, 'size' => 15.7]),
+    ]);
 }
 
 /** A row of images in core Columns; widths like '29.2%' (pair 455 + 1085 at 1920) or '50%'. */
@@ -331,6 +355,8 @@ $blocks = [
         p('Non-intrusive surveys enhanced understanding of the existing early 20th-century services, defining the scope and phasing of upgrades that allowed continued building use during the works.'),
     ], 'blue', 'Introduction'),
 
+    contents(),
+
     chapter('Below Ground Offices', [
         p($lorem), p($lorem),
         row(['29.2%', '70.8%'], [
@@ -340,7 +366,7 @@ $blocks = [
                 ['x' => 5, 'y' => 93, 'anchor' => 'bottom-left', 'style' => 'magnify', 'text' => 'Services run under the floor'],
             ]),
         ]),
-    ]),
+    ], 'white', '', 'contents-offices.jpg'),
 
     chapter('Stairwells, Basements, and Lightwells', [
         h3('Stairwells'), p($lorem),
@@ -355,9 +381,12 @@ $blocks = [
         h3('Lightwell / Courtyard'),
         p('Two open courtyards have been enclosed, improving usability, providing daylight, and natural ventilation, to the reconfigured lower floors and reducing heat loss. The glass has the same thermal performance as the old walls.'),
         p($lorem),
-    ], 'off-white'),
+    ], 'off-white', '', 'contents-stairwells.jpg'),
 
-    // Listed Building Phasing needs the Building Phases block (next round)
+    // Listed Building Phasing: text only until the Building Phases block exists
+    chapter('Listed Building Phasing / Fabric Upgrades', [
+        p($lorem),
+    ], 'white', '', 'contents-phasing.jpg'),
 
     chapter('Glass Pavilion', [
         figure('pavilion.jpg', '', ['image' => 'pavilion-drawing.jpg', 'x' => 33, 'y' => 7, 'size' => 7], [], 'full'),
@@ -368,14 +397,14 @@ $blocks = [
             ['x' => 41.5, 'y' => 60, 'anchor' => 'top-right', 'style' => 'grow', 'text' => 'Lorem ipsum dolor sit amet'],
             ['x' => 85, 'y' => 68, 'anchor' => 'bottom-left', 'style' => 'grow', 'text' => 'Lorem ipsum dolor sit amet'],
         ], 'wide'),
-    ], 'off-white', 'Glass Pavillion'),
+    ], 'off-white', 'Glass Pavillion', 'contents-pavilion.jpg'),
 
     chapter('East Wing Bedrooms / Ensuites', [
         p($lorem), p($lorem),
         figure('exploded-view.jpg', '', null, [], 'wide'),
         p('The East Wing of Rhodes House has been returned to its original residential use, providing 21 ensuite bedrooms for conference delegates, with new lifts ensuring that most rooms have flat and level access.'),
         figure('bedroom.jpg', '', ['image' => 'bedroom-drawing.jpg', 'x' => 28, 'y' => 26, 'size' => 11]),
-    ]),
+    ], 'white', '', 'contents-east-wing.jpg'),
 
     chapter('Residential Sunken Courtyard', [
         figure('courtyard.jpg', '', null, [], 'full'),
@@ -392,7 +421,7 @@ $blocks = [
             ['x' => 70.5, 'y' => 72.5, 'anchor' => 'top-left', 'style' => 'magnify', 'text' => 'Planted communal patio'],
         ], 'wide'),
         p($lorem),
-    ], 'off-white'),
+    ], 'off-white', '', 'contents-courtyard.jpg'),
 
     chapter('Convening Hall: Main Conference Space', [
         p('A new 300-seat Conference Hall and adjacent Foyer have been created by converting existing cavernous archive spaces beneath the House’s main rooms and gardens.'),
@@ -406,7 +435,7 @@ $blocks = [
         figure('aerial.jpg', '', ['image' => 'aerial-before.jpg', 'x' => 24, 'y' => 59, 'size' => 15.5], [], 'full'),
         p($lorem),
         plus_link('Back to all projects', home_url('/work/')),
-    ]),
+    ], 'white', '', 'contents-hall.jpg'),
 ];
 
 $found = get_page_by_path('rhodes-house', OBJECT, 'project');

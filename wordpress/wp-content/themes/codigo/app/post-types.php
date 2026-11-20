@@ -24,10 +24,11 @@ add_action('init', function () {
         'menu_position' => 20,
         'supports' => ['title', 'editor', 'thumbnail', 'excerpt', 'revisions', 'custom-fields'],
         'show_in_rest' => true,          // block editor
-        // A new project starts with: hero, blue introduction (facts + lead), first chapter
+        // A new project starts with: hero, blue introduction (facts + lead), contents, first chapter
         'template' => [
             ['acf/project-hero'],
             ['acf/section', ['backgroundColor' => 'blue']],
+            ['acf/contents'],
             ['acf/chapter'],
         ],
     ]);

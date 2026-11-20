@@ -8,6 +8,45 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
+## [0.0.6] - 2026-11-20
+
+Project page, second part: the Contents block (Figma "Contents", between the introduction and the first chapter),
+from George's recordings (Contents hover and scroll, Contents anchored while the chapters scroll over it).
+
+### Added
+- **Contents block** (`acf/contents`, ACF Composer): the page's chapters listed on a panel (650 wide at 1920) next to
+  any blocks, normally an Image filling the rest (the exploded view, with its aperture "+").
+  - The list is built from the page's Chapter blocks (short title, or title), so it follows chapters being added,
+    renamed or reordered.
+  - Hovering or focusing a chapter turns it black with the ↓ arrow and fades its highlight image in over the picture
+    (300ms). The first chapter starts active; the last one hovered stays active.
+  - Clicking a chapter scrolls to it (Figma "Scroll to": 1000ms).
+  - The block fills the window and, once it reaches the top, stays put while the chapters scroll up over it.
+  - On phones: list on top, image below, a tap scrolls. In the editor the list shows a thumbnail of each highlight.
+  - Colours in the block's Styles → Color panel, with the palette swatches: **Text** (black by default; white on a
+    dark list background), **Background** (image side, Off-white by default) and **List background** (Plaster by
+    default; added to the core panel by `resources/js/filters/contents.colors.*.js`, saved as `panelColor`).
+- **Highlight in Contents** image field on the Chapter block. The Contents block can replace any of them
+  ("Replace a highlight": chapter + image, matched by the chapter's id). Highlights must have the same size and
+  framing as the Contents image.
+- A new project now starts with Project Hero, a blue Section, **Contents** and a Chapter.
+- **Seed:** the Contents block, highlights for each chapter (`contents-*.jpg`, used when the files exist) and the
+  "Listed Building Phasing / Fabric Upgrades" chapter (text only until the Building Phases block exists).
+
+### Changed
+- The chapter list for the "+" menu and the Contents block share one reader of the page's blocks
+  (`App\page_nav()`, `App\chapters()`), and scrolling to a section is one helper (`scrollToElement()` in
+  `resources/js/utils/motion.js`).
+
+### Pending
+- Work in progress on `feature/project-blocks`, not merged into `main` until the whole Project page is reviewed.
+- Remaining parts of the Project page: image carousel, Impact stats, Building Phases with note tags
+  (interactive list), accordion (core Details), video, quote, awards, team and related projects.
+- Real Rhodes House images exported from the Figma for the seed (it uses placeholders for now), including the
+  Contents exploded view, its aerial photo and one highlight per chapter (same size and framing).
+- Check the Figma colours against the prototype's (Blue #233F7C vs #253F7C, Slate #626C77 vs #5F6D78,
+  Off-white #F7F7F2 vs #F6F7F1).
+
 ## [0.0.5] - 2026-11-17
 
 Project page, first part, built with Gutenberg blocks: ACF Composer blocks for the custom parts, core blocks
@@ -41,14 +80,6 @@ with theme styles for everything else. From the Figma "Project Page — Type A" 
 - **Design system in the theme:** tokens in `resources/css/base.css`, custom CSS in `resources/css/pcss/`
   (header, menu bar, footer ported from the homepage prototype).
 - **Seed:** `scripts/seed-rhodes-house.php` builds Rhodes House from blocks.
-
-### Pending
-- Work in progress on `feature/project-blocks`, not merged into `main` until the whole Project page is reviewed.
-- Remaining parts of the Project page: Contents, image carousel, Impact stats, Building Phases with note tags
-  (interactive list), accordion (core Details), video, quote, awards, team and related projects.
-- Real Rhodes House images exported from the Figma for the seed (it uses placeholders for now).
-- Check the Figma colours against the prototype's (Blue #233F7C vs #253F7C, Slate #626C77 vs #5F6D78,
-  Off-white #F7F7F2 vs #F6F7F1).
 
 ## [0.0.4] - 2026-11-17
 

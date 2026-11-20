@@ -42,3 +42,9 @@ export function scrollToY(y, duration = 1000) {
   };
   requestAnimationFrame(step);
 }
+
+/** Scrolls so the element's top meets the top of the window (below the WordPress admin bar when logged in). */
+export function scrollToElement(el, duration = 1000) {
+  const adminBar = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--wp-admin--admin-bar--height')) || 0;
+  scrollToY(el.getBoundingClientRect().top + scrollY - adminBar, duration);
+}

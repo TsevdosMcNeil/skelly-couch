@@ -6,6 +6,7 @@
 import { initMenu } from './components/menu.js';
 import { initHeaderSurface } from './components/header-surface.js';
 import { initChapterNav } from './components/chapter-nav.js';
+import { initContents } from './components/contents.js';
 import { initAperture } from './components/aperture.js';
 import { initComments } from './components/comments.js';
 
@@ -15,6 +16,7 @@ ready(() => {
   initMenu(document);
   initHeaderSurface(document.querySelector('[data-site-header]'));
   document.querySelectorAll('[data-chapter-nav]').forEach(initChapterNav);
+  document.querySelectorAll('[data-contents]').forEach(initContents); // before the aperture: it may add .figure__media
   document.querySelectorAll('[data-aperture]').forEach(initAperture);
   document.querySelectorAll('[data-comments]').forEach(initComments);
 });

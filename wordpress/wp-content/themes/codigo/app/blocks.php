@@ -36,11 +36,31 @@ function chapter_id(?string $anchor, string $title): string
 }
 
 /**
+ * The page's Chapter blocks, in order: id, label (short title or title) and "Highlight in Contents" image.
+ *
+ * @return array<int, array{id: string, label: string, highlight: int}>
+ */
+function chapters(int $post_id): array
+{
+    return array_values(array_filter(page_nav($post_id), fn ($item) => $item['type'] === 'chapter'));
+}
+
+/**
  * Entries for the chapter bars' "+" menu, in page order: Sections that have a menu name, and every Chapter.
  *
  * @return array<int, array{id: string, label: string}>
  */
 function section_nav(int $post_id): array
+{
+    return page_nav($post_id);
+}
+
+/**
+ * Sections with a menu name and Chapters of a post, in page order (read from the saved content).
+ *
+ * @return array<int, array{type: string, id: string, label: string, highlight: int}>
+ */
+function page_nav(int $post_id): array
 {
     static $cache = [];
 
@@ -50,15 +70,17 @@ function section_nav(int $post_id): array
 
     $nav = [];
 
-    foreach (parse_blocks(get_post_field('post_content', $post_id)) as $block) {
+    foreach (parse_blocks((string) get_post_field('post_content', $post_id)) as $block) {
         $name = $block['blockName'] ?? '';
         $attrs = $block['attrs'] ?? [];
         $data = $attrs['data'] ?? [];
 
         if ($name === 'acf/section' && ! empty($data['nav_label'])) {
             $nav[] = [
+                'type' => 'section',
                 'id' => ($attrs['anchor'] ?? '') ?: sanitize_title($data['nav_label']),
                 'label' => $data['nav_label'],
+                'highlight' => 0,
             ];
         }
 
@@ -66,13 +88,64 @@ function section_nav(int $post_id): array
             $title = ($data['short_title'] ?? '') ?: ($data['title'] ?? '');
 
             if ($title !== '') {
-                $nav[] = ['id' => chapter_id($attrs['anchor'] ?? '', $title), 'label' => $title];
+                $nav[] = [
+                    'type' => 'chapter',
+                    'id' => chapter_id($attrs['anchor'] ?? '', $title),
+                    'label' => $title,
+                    'highlight' => (int) ($data['highlight'] ?? 0),
+                ];
             }
         }
     }
 
     return $cache[$post_id] = $nav;
 }
+
+/**
+ * The post being edited, also inside ACF's block requests (sidebar fields, previews).
+ */
+function editing_post_id(): int
+{
+    $candidates = [
+        function_exists('acf_get_form_data') ? acf_get_form_data('post_id') : null,
+        $_REQUEST['post_id'] ?? null,
+        $_GET['post'] ?? null,
+        get_the_ID(),
+    ];
+
+    foreach ($candidates as $id) {
+        if (is_numeric($id) && (int) $id > 0) {
+            return (int) $id;
+        }
+    }
+
+    return 0;
+}
+
+/**
+ * Contents block, "Replace a highlight" → Chapter: a drop-down of this page's chapters.
+ * A replacement whose chapter has gone (renamed or deleted) is kept, marked as missing.
+ */
+add_filter('acf/prepare_field/name=contents_chapter', function ($field) {
+    $choices = [];
+
+    foreach (chapters(editing_post_id()) as $chapter) {
+        $choices[$chapter['id']] = $chapter['label'];
+    }
+
+    $value = is_string($field['value'] ?? null) ? $field['value'] : '';
+    if ($value !== '' && ! isset($choices[$value])) {
+        $choices[$value] = sprintf(__('%s (chapter not found)', 'sage'), $value);
+    }
+
+    $field['choices'] = $choices;
+
+    if (! $choices) {
+        $field['instructions'] = __('Save the page after adding chapters to see them here.', 'sage');
+    }
+
+    return $field;
+});
 
 /**
  * "Skelly + Couch" block category, first in the inserter.
@@ -211,3 +284,15 @@ function comment_style(array $comment): string
 
     return implode('; ', array_map(fn ($k, $v) => "{$k}: {$v}", array_keys($vars), $vars));
 }
+
+/**
+ * Contents block: the "List background" colour (`panelColor`, a palette slug) is a block attribute set from
+ * the Color panel (resources/js/filters/contents.colors.*.js). Registered here so WordPress keeps it.
+ */
+add_filter('register_block_type_args', function (array $args, string $name) {
+    if ($name === 'acf/contents') {
+        $args['attributes'] = ($args['attributes'] ?? []) + ['panelColor' => ['type' => 'string']];
+    }
+
+    return $args;
+}, 10, 2);

@@ -1,0 +1,87 @@
+/*
+ * Contents: the chapter list (left panel, 650 wide at 1920) next to an Image filling the rest (Figma "Contents").
+ * It fills the window and, once it reaches the top, stays put (sticky) while the chapters scroll up over it.
+ * "Contents" at the top on the page margin; the list at the bottom, one chapter every 37,
+ * the active one black with the ↓ arrow 35 to its left, the others faded.
+ * The highlight images sit over the picture (same box, same object-fit) and crossfade on hover.
+ *
+ * Imported WITHOUT a cascade layer: it overrides WordPress's core Image CSS (margins, sizes).
+ */
+.contents {
+  --top: var(--wp-admin--admin-bar--height, 0px);
+  display: grid;
+  grid-template-columns: calc(650 * var(--u)) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);   /* the image fits the window instead of stretching it */
+  position: sticky; top: var(--top); z-index: 0;
+  height: calc(100vh - var(--top));
+  height: calc(100svh - var(--top));
+}
+
+/*
+ * Colours (set by the view on the front end, by contents.colors.preview.js in the editor):
+ * --contents-panel (List background), --contents-text (Text, when chosen), --contents-panel-text (white on dark lists)
+ */
+.contents { color: var(--contents-text, var(--color-black)); }
+
+/* Everything after it scrolls over it (chapters are opaque) */
+.contents ~ * { position: relative; z-index: 1; }
+
+/* ---------- List panel ---------- */
+.contents__panel {
+  background: var(--contents-panel, var(--color-plaster));
+  color: var(--contents-text, var(--contents-panel-text, var(--color-black)));
+  display: flex; flex-direction: column; justify-content: space-between; gap: var(--sp-60);
+  padding: calc(30 * var(--u)) calc(20 * var(--u)) calc(70 * var(--u)) var(--margin);
+}
+.contents__heading { margin: 0; font-weight: 400; }
+
+.contents__list { list-style: none; margin: 0; padding: 0; font-size: var(--text-body); line-height: calc(37 * var(--u)); }
+.contents__item a {
+  position: relative; display: inline-block; color: inherit; text-decoration: none;
+  opacity: .5; transition: opacity var(--t-hover) var(--ease-hover);
+}
+.contents__item.is-active a { opacity: 1; }
+.contents__arrow {
+  position: absolute; left: calc(-35 * var(--u)); top: 50%;
+  width: calc(14 * var(--u)); height: calc(16 * var(--u)); translate: 0 -50%;
+  opacity: 0; transition: opacity var(--t-hover) var(--ease-hover);
+}
+.contents__item.is-active .contents__arrow { opacity: 1; }
+.contents__item a:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
+
+/* ---------- Image side ---------- */
+.contents__media { position: relative; min-width: 0; overflow: hidden; }
+.contents__media > .acf-innerblocks-container { height: 100%; }
+
+/* An Image on its own fills the side; the picture is cropped to fit (object-fit: cover) */
+:is(.contents__media, .contents__media > .acf-innerblocks-container) > .wp-block-image:only-child { margin: 0; height: 100%; }
+:is(.contents__media, .contents__media > .acf-innerblocks-container) > .wp-block-image:only-child :is(.figure__media, img) {
+  display: block; width: 100%; height: 100%;
+}
+:is(.contents__media, .contents__media > .acf-innerblocks-container) > .wp-block-image:only-child img { object-fit: cover; }
+
+/* Highlights: over the picture, under the aperture and comments */
+.contents__highlight {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none;
+  opacity: 0; transition: opacity var(--t-hover) var(--ease-hover);
+}
+.contents__highlight.is-visible { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .contents__highlight, .contents__item a, .contents__arrow { transition: none; }
+}
+
+/* ---------- Phones: list on top, image below; a tap scrolls to the chapter ---------- */
+@media (max-width: 820px) {
+  .contents { grid-template-columns: 1fr; grid-template-rows: auto; position: relative; height: auto; }
+  .contents__panel { padding: 30px var(--margin) 40px; gap: 30px; }
+  .contents__list { line-height: 1.8; }
+  .contents__item a { opacity: 1; }
+  .contents__arrow { display: none; }
+  :is(.contents__media, .contents__media > .acf-innerblocks-container) > .wp-block-image:only-child :is(.figure__media, img) { height: auto; }
+}
+
+/* ---------- Editor: no sticking (the canvas scrolls differently), Figma height ---------- */
+.editor-styles-wrapper .contents { position: relative; height: auto; grid-template-rows: auto; min-height: calc(1080 * var(--u)); }
+.contents__thumb { display: inline-block; width: 24px; height: 24px; margin-right: 8px; vertical-align: middle; object-fit: cover; outline: 1px solid rgb(0 0 0 / .15); }
+.contents__empty { font-size: 13px; opacity: .7; }
