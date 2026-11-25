@@ -3,7 +3,7 @@ A clean slate Wordpress application for Skelly & Couch.
 Based in [sage](https://github.com/roots/sage?tab=readme-ov-file)
 
 
-[![version](https://img.shields.io/badge/version-0.0.4-red.svg)](https://semver.org)
+[![version](https://img.shields.io/badge/version-0.0.5-red.svg)](https://semver.org)
 
 
 ## Live version
