@@ -8,6 +8,26 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
+## [0.0.5] - 2026-11-25
+
+Homepage prototype: final logos and the menu logo animation from George.
+
+### Changed
+- **Logos:** George's final SVGs replace the S+C mark and the typeset "SKELLY +COUCH": wordmark on the homepage hero,
+  in the menu and in the footer; S+C mark in the fixed header. Both are 86px tall at 1920, 20px from the top-left.
+- **Intro animation:** the S, + and C use pieces of the new mark.
+- **Menu height:** now 126px at 1920 (wordmark plus 20px above and below).
+
+### Added
+- **Menu logo animation** (George's `S+C-Menu-SVG.json`, rebuilt in CSS): when the menu opens, the + and C of the
+  S+C mark slide into place so the mark lines up with the full wordmark (0.7s, the same easing as the Lottie file);
+  it reverses on close. The mark sits above the blue bar while the menu is open; the menu wordmark has the mark's
+  shapes cut out, so the moving + and C complete it. At the top of the homepage, where the mark is under the hero,
+  it is wiped in together with the bar.
+
+### Pending
+- Chromatic Pro web fonts.
+
 ## [0.0.4] - 2026-11-17
 
 Homepage prototype: logo and menu, from George's recordings (homeScroll, OpenMenu, OpenMenutop).
