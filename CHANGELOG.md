@@ -8,14 +8,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## [0.0.9] - 2026-11-20
+## [0.1.4] - 2026-11-20
 
 ### Added
 - **Comments "+": "Darken the image (%)"** in the Image block's Comments panel (0 = none, 100 = black, default 18%).
   Magnifying-glass comments now darken the image while it's hovered; growing notes darken it while a note is open,
   both using this setting.
 
-## [0.0.8] - 2026-11-20
+## [0.1.3] - 2026-11-20
 
 Image block aperture "+": adjustments from Pablo's review (Aperture+.png, ImageMouse recording).
 
@@ -26,7 +26,7 @@ Image block aperture "+": adjustments from Pablo's review (Aperture+.png, ImageM
   the cursor. Clicking again, or leaving the image, shrinks the second image back into the window wherever it is,
   and the window carries on following the cursor.
 
-## [0.0.7] - 2026-11-20
+## [0.1.2] - 2026-11-20
 
 ### Changed
 - The scrollbar is hidden across the whole site, so `100vw` (and `--u`) always equals the window width.
@@ -34,7 +34,7 @@ Image block aperture "+": adjustments from Pablo's review (Aperture+.png, ImageM
   Contents block and chapter bars from sticking).
 
 
-## [0.0.6] - 2026-11-20
+## [0.1.1] - 2026-11-20
 
 Project page, second part: the Contents block (Figma "Contents", between the introduction and the first chapter),
 from George's recordings (Contents hover and scroll, Contents anchored while the chapters scroll over it).
@@ -73,7 +73,7 @@ from George's recordings (Contents hover and scroll, Contents anchored while the
 - Check the Figma colours against the prototype's (Blue #233F7C vs #253F7C, Slate #626C77 vs #5F6D78,
   Off-white #F7F7F2 vs #F6F7F1).
 
-## [0.0.5] - 2026-11-17
+## [0.1.0] - 2026-11-17
 
 Project page, first part, built with Gutenberg blocks: ACF Composer blocks for the custom parts, core blocks
 with theme styles for everything else. From the Figma "Project Page — Type A" (Rhodes House) and George's recordings.
